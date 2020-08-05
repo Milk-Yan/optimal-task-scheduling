@@ -8,14 +8,17 @@ public class Driver {
         String fileName = args[0];
         int numProcessors = Integer.parseInt(args[1]);
 
-        IOParser io = new IOParser();
-        io.read(fileName);
-        List<int[]> inList = io.getInList(fileName);
-        List<int[]> outList = io.getOutList(fileName);
+        IOParser io = new IOParser(fileName);
+        io.read();
+
+        List<int[]> inList = io.getInList();
+        List<int[]> outList = io.getOutList();
+        int[][] commCosts = io.getCommCosts();
+        int[] durations = io.getDurations();
 
         Solution solution = new Solution();
-        int[][] result = solution.run(inList, outList, numProcessors);
+        Task[] result = solution.run(inList, outList, commCosts, durations, numProcessors);
 
-        io.write(fileName, result);
+        io.write(result);
     }
 }
