@@ -5,9 +5,18 @@ import java.util.List;
 
 public class IOParser {
 
-    public List<int[]> read(String fileName) {
+    public void read(String fileName) {
         // TODO
-        return new ArrayList<>();
+    }
+
+    public List<int[]> getInList(String fileName) {
+        // TODO
+        return null;
+    }
+
+    public List<int[]> getOutList(String fileName) {
+        // TODO
+        return null;
     }
 
     public void write(String fileName, int[][] result) {

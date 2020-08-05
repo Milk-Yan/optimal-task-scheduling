@@ -9,10 +9,12 @@ public class Driver {
         int numProcessors = Integer.parseInt(args[1]);
 
         IOParser io = new IOParser();
-        List<int[]> inputs = io.read(fileName);
+        io.read(fileName);
+        List<int[]> inList = io.getInList(fileName);
+        List<int[]> outList = io.getOutList(fileName);
 
         Solution solution = new Solution();
-        int[][] result = solution.run(inputs, numProcessors);
+        int[][] result = solution.run(inList, outList, numProcessors);
 
         io.write(fileName, result);
     }
