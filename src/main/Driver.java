@@ -11,8 +11,8 @@ public class Driver {
         IOParser io = new IOParser(fileName);
         io.read();
 
-        List<int[]> inList = io.getInList();
-        List<int[]> outList = io.getOutList();
+        List<Integer>[] inList = io.getInList();
+        List<Integer>[] outList = io.getOutList();
         int[][] commCosts = io.getCommCosts();
         int[] durations = io.getDurations();
 

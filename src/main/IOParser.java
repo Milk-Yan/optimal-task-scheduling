@@ -14,12 +14,12 @@ public class IOParser {
         // TODO
     }
 
-    public List<int[]> getInList() {
+    public List<Integer>[] getInList() {
         // TODO
         return null;
     }
 
-    public List<int[]> getOutList() {
+    public List<Integer>[] getOutList() {
         // TODO
         return null;
     }

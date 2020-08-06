@@ -15,7 +15,7 @@ public class Solution {
      * @param numProcessors Number of processors.
      * @return List of scheduled tasks.
      */
-    public Task[] run(List<int[]> inList, List<int[]> outList, int[][] commCosts, int[] durations, int numProcessors) {
+    public Task[] run(List<Integer>[] inList, List<Integer>[] outList, int[][] commCosts, int[] durations, int numProcessors) {
         // TODO
         // create output array
         // create list of tasks for each processor
