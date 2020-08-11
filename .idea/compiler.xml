@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="project-1-13-notice-me-sinnenpai" target="1.5" />
+      <module name="project-1-13-notice-me-sinnenpai" target="13" />
     </bytecodeTargetLevel>
   </component>
 </project>

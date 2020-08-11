@@ -1,6 +1,6 @@
-package test;
+package test.java;
 
-import main.Task;
+import main.java.Task;
 
 import java.util.List;
 
