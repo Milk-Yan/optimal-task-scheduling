@@ -1,7 +1,3 @@
-package test.java;
-
-import main.java.Task;
-
 import java.util.List;
 
 /**

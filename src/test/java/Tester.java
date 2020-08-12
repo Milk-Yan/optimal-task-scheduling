@@ -1,6 +1,3 @@
-package test.java;
-
-import main.java.Task;
 import org.junit.Test;
 
 import java.util.ArrayList;
