@@ -1,7 +1,6 @@
+import java.util.List;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.DefaultGraph;
@@ -11,7 +10,8 @@ import org.graphstream.stream.file.FileSource;
 import org.graphstream.stream.file.FileSourceDOT;
 
 public class IOParser {
-    private String fileName;
+    private String inputFileName;
+    private String outputFileName;
     private List<Integer>[] inList;
     private List<Integer>[] outList;
     private int[] durations;
@@ -19,8 +19,10 @@ public class IOParser {
 
     private Graph graph;
 
-    public IOParser(String fileName) {
-        this.fileName = fileName;
+    public IOParser(String inputFileName, String outputFileName) {
+        this.inputFileName = inputFileName;
+        this.outputFileName = outputFileName;
+
     }
 
     private void initializeDataStructures(int n) {
@@ -42,9 +44,9 @@ public class IOParser {
 
         try {
             fileSource.addSink(graph);
-            fileSource.readAll(fileName);
+            fileSource.readAll(inputFileName);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error reading file: Please specify the path to a dot file");
         } finally {
           fileSource.removeSink(graph);
         }
@@ -60,7 +62,6 @@ public class IOParser {
                 int s = e.getSourceNode().getIndex();
                 int t = e.getTargetNode().getIndex();
                 int commCost = ((Double)e.getAttribute("Weight")).intValue();
-
                 inList[t].add(s);
                 outList[s].add(t);
                 commCosts[s][t] = commCost;
@@ -90,11 +91,11 @@ public class IOParser {
             Node node = graph.getNode(i);
             node.setAttribute("Start Time", result[i].startTime);
             node.setAttribute("Processor", result[i].processor);
+            node.setAttribute("Weight", durations[i]);
         }
-
         FileSink file = new FileSinkDOT(true);
         try {
-            file.writeAll(graph, fileName);
+            file.writeAll(graph, outputFileName);
         } catch (IOException e) {
             e.printStackTrace();
         }

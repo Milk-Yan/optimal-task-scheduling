@@ -9,7 +9,7 @@ public class IOTester {
     public static void main(String[] args){
 
         //Requires there to be a file called input.dot in the same dir
-        IOParser parser = new IOParser("./input.dot");
+        IOParser parser = new IOParser("./input.dot", "./output.dot");
         parser.read();
         List<Integer>[] inList = parser.getInList();
         List<Integer>[] outList = parser.getOutList();
