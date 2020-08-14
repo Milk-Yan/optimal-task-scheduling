@@ -27,4 +27,4 @@ TODO
 * Sheldon Rodricks - [shelrod24](https://github.com/shelrod24)
 * Tushar Thakur - [thakurtushar02](https://github.com/thakurtushar02)
 * Yuno Oh - [yuno99825](https://github.com/yuno99825)
-* Elisa Yansun - [Chuppay](https://github.com/Chuppay)
+* Elisa Yansun - [Milk-Yan](https://github.com/Milk-Yan)
