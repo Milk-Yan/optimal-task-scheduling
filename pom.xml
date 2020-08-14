@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>softeng-306-project-1</groupId>
-    <artifactId>project-1-13-notice-me-sinnenpai</artifactId>
+    <artifactId>scheduler</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
@@ -14,7 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- specify java version compilation -->
-        <maven.compiler.release>13</maven.compiler.release>
+        <maven.compiler.release>1.8</maven.compiler.release>
     </properties>
 
     <repositories>
@@ -54,6 +54,14 @@
                 <version>3.8.0</version>
                 <configuration>
                     <release>13</release>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <finalName>scheduler</finalName>
                 </configuration>
             </plugin>
             <plugin>

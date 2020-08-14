@@ -5,7 +5,14 @@ public class Driver {
 
     public static void main(String[] args) {
         String fileName = args[0];
-        int numProcessors = Integer.parseInt(args[1]);
+
+        int numProcessors = 1;
+        try {
+            numProcessors = Integer.parseInt(args[1]);
+        } catch(NumberFormatException e){
+            System.out.println("Error number of processors invalid: Please enter the number of processors available");
+            System.exit(1);
+        }
 
         Options options = new Options();
         Option p = new Option("p", true, "numCores");

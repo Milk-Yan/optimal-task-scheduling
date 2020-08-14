@@ -1,7 +1,6 @@
+import java.util.List;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.DefaultGraph;
@@ -47,7 +46,7 @@ public class IOParser {
             fileSource.addSink(graph);
             fileSource.readAll(inputFileName);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error reading file: Please specify the path to a dot file");
         } finally {
           fileSource.removeSink(graph);
         }
@@ -63,7 +62,6 @@ public class IOParser {
                 int s = e.getSourceNode().getIndex();
                 int t = e.getTargetNode().getIndex();
                 int commCost = ((Double)e.getAttribute("Weight")).intValue();
-
                 inList[t].add(s);
                 outList[s].add(t);
                 commCosts[s][t] = commCost;
@@ -93,8 +91,8 @@ public class IOParser {
             Node node = graph.getNode(i);
             node.setAttribute("Start Time", result[i].startTime);
             node.setAttribute("Processor", result[i].processor);
+            node.setAttribute("Weight", durations[i]);
         }
-
         FileSink file = new FileSinkDOT(true);
         try {
             file.writeAll(graph, outputFileName);

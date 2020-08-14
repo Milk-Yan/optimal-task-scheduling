@@ -6,11 +6,12 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="project-1-13-notice-me-sinnenpai" />
+        <module name="scheduler" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="project-1-13-notice-me-sinnenpai" target="13" />
+      <module name="scheduler" target="13" />
     </bytecodeTargetLevel>
   </component>
 </project>
