@@ -11,7 +11,8 @@ import org.graphstream.stream.file.FileSource;
 import org.graphstream.stream.file.FileSourceDOT;
 
 public class IOParser {
-    private String fileName;
+    private String inputFileName;
+    private String outputFileName;
     private List<Integer>[] inList;
     private List<Integer>[] outList;
     private int[] durations;
@@ -19,8 +20,10 @@ public class IOParser {
 
     private Graph graph;
 
-    public IOParser(String fileName) {
-        this.fileName = fileName;
+    public IOParser(String inputFileName, String outputFileName) {
+        this.inputFileName = inputFileName;
+        this.outputFileName = outputFileName;
+
     }
 
     private void initializeDataStructures(int n) {
@@ -42,7 +45,7 @@ public class IOParser {
 
         try {
             fileSource.addSink(graph);
-            fileSource.readAll(fileName);
+            fileSource.readAll(inputFileName);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -94,7 +97,7 @@ public class IOParser {
 
         FileSink file = new FileSinkDOT(true);
         try {
-            file.writeAll(graph, fileName);
+            file.writeAll(graph, outputFileName);
         } catch (IOException e) {
             e.printStackTrace();
         }
