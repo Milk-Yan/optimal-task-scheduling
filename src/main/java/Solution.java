@@ -7,16 +7,16 @@ public class Solution {
     /**
      * Main method of the algorithm which schedules tasks on parallel processors
      * n is the number of tasks.
-     * @param inList Array of list of vertices which can reach i-th vertex
-     * @param outList Array of list of vertices reachable from i-th vertex
-     * @param commCosts n by n array where the i,j -th element is the cost of going from i to j
-     *                  Empty if no edge.
-     * @param durations i-th element is the duration of task i.
+     * @param taskGraph object that encapsulates tasks and their dependencies.
      * @param numProcessors Number of processors.
      * @return List of scheduled tasks.
      */
-    public Task[] run(List<Integer>[] inList, List<Integer>[] outList, int[][] commCosts, int[] durations, int numProcessors) {
-        int n = inList.length;
+    public Task[] run(TaskGraph taskGraph, int numProcessors) {
+        int n = taskGraph.getNumberOfTasks();
+        List<Integer>[] parentsList = taskGraph.getParentsList();
+        List<Integer>[] childrenList = taskGraph.getChildrenList();
+        int[] durations = taskGraph.getDurations();
+        int[][] commCosts = taskGraph.getCommCosts();
 
         // create output array
         Task[] output = new Task[n];
@@ -31,7 +31,7 @@ public class Solution {
         Queue<Integer> scheduleCandidates = new PriorityQueue<>();
 
         for (int i = 0; i < n; i++) {
-            inDegrees[i] = inList[i].size();
+            inDegrees[i] = parentsList[i].size();
             if (inDegrees[i] == 0) {
                 scheduleCandidates.add(i);
             }
@@ -59,7 +59,7 @@ public class Solution {
             output[candidate] = new Task(candidate, minStartTime, finishTime, minProcessor+1);
 
             // Update earliest schedule times for children
-            for (int child: outList[candidate]) {
+            for (int child: childrenList[candidate]) {
                 for (int i = 0; i < numProcessors; i++) {
                     if (i == minProcessor) {
                         // for the processor the candidate was applied to,

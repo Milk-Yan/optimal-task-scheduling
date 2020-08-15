@@ -9,10 +9,9 @@ public class IOTester {
     public static void main(String[] args){
 
         //Requires there to be a file called input.dot in the same dir
-        IOParser parser = new IOParser("./input.dot", "./output.dot");
-        parser.read();
-        List<Integer>[] inList = parser.getInList();
-        List<Integer>[] outList = parser.getOutList();
+        TaskGraph taskGraph = IOParser.read("./input.dot");
+        List<Integer>[] inList = taskGraph.getParentsList();
+        List<Integer>[] outList = taskGraph.getChildrenList();
 
         //Testing if the in degrees of each node which has a parent are correct.
         for(int i = 0; i < inList.length;i++){
@@ -37,7 +36,7 @@ public class IOTester {
         System.out.println("**************************************************");
 
         //Testing if weights of each node are read correctly.
-        int[] weights = parser.getDurations();
+        int[] weights = taskGraph.getDurations();
         for(int i = 0; i < weights.length; i++){
             System.out.print(i + ": ");
             System.out.println(weights[i]);
@@ -45,7 +44,7 @@ public class IOTester {
 
         //Printing out the communication costs.
         System.out.println("**************************************************");
-        int[][] commCosts = parser.getCommCosts();
+        int[][] commCosts = taskGraph.getCommCosts();
         for(int i = 0; i< commCosts.length; i++){
             for(int j = 0; j< commCosts[0].length; j++){
                 if(commCosts[i][j] != 0){
@@ -63,6 +62,6 @@ public class IOTester {
         };
 
         //The parser will write to the input file. Check the output file to ensure correctness.
-        parser.write(tasks);
+        IOParser.write("./output.dot", taskGraph, tasks);
     }
 }

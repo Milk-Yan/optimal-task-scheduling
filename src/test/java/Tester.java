@@ -54,7 +54,7 @@ public class Tester {
         int numProcessors = 2;
 
         Solution solution = new Solution();
-        Task[] result = solution.run(inList, outList, commCosts, durations, numProcessors);
+        Task[] result = solution.run(new TaskGraph(inList, outList, durations, commCosts), numProcessors);
 
         assertTrue(validater.validate(inList, commCosts, durations, numProcessors, result));
     }

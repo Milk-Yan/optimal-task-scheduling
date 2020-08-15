@@ -9,6 +9,7 @@ Optimality of the schedule was not important for this milestone.
 - Manage package structure including external libraries.
 ### Solution
 - Implemented skeleton code for the project including an `IOParser` and `Solution` class.
+- Created a `TaskGraph` class which encapsulates tasks and dependencies.
 - Created pseudocode for greedy algorithm which schedules task as early as possible.
 - Used Maven to manage dependencies.
 ### Issues
@@ -38,6 +39,7 @@ This needs to be confirmed for validity by the client.
 as input to the algorithm
 - Implement an algorithm which generates a valid schedule and outputs it as a data structure.
 ### Solution
+- Accept `TaskGraph` object as input.
 - Keep track of in-degrees of each node (task) using an array. Maintain the ones with an in-degree of 0 in a queue.
 - Via an n-by-p array, keep track of, for each node, the earliest time it can be scheduled on each processor.
 - Schedule a random task from queue and update the n-by-p array. Decrement in degree of children and

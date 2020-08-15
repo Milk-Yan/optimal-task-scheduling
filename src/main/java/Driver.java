@@ -1,15 +1,11 @@
-import java.util.List;
 import org.apache.commons.cli.*;
 
 public class Driver {
 
     /**
      * Main method of the project from which everything is instantiated and run.
-     * Instantiates an IOParser object which creates data structures from the inputs to the method. It then retrieves
-     * these data structures using getter methods and passes them to a new Solution object.
-     * Finally, it sends the result it retrieves from the Solution object to the IOParser object which then outputs the
-     * solution in the required format.
-     * This class uses an external library from Apache Commons.
+     * Uses the IOParser class to create a TaskGraph object. A solution object uses the TaskGraph object to create a schedule represented by an array of Tasks.
+     * We use the IOParser to write the schedule to the output dot file.
      * @param args Array of string of inputs, in order: input file name, processor count, [OPTIONAL]: (-p) number of cores,
      *             (-v) visualisation of search, (-o) name of output file
      */
@@ -57,14 +53,10 @@ public class Driver {
             System.out.println("Please insure that the program is run like: java -jar scheduler.jar INPUT.dot P [OPTION]");
             System.exit(1);
         }
-        IOParser io = new IOParser(fileName, outputFilePath);
-        io.read();
-        List<Integer>[] inList = io.getInList();
-        List<Integer>[] outList = io.getOutList();
-        int[][] commCosts = io.getCommCosts();
-        int[] durations = io.getDurations();
+
+        TaskGraph taskGraph = IOParser.read(fileName);
         Solution solution = new Solution();
-        Task[] result = solution.run(inList, outList, commCosts, durations, numProcessors);
-        io.write(result);
+        Task[] result = solution.run(taskGraph, numProcessors);
+        IOParser.write(outputFilePath, taskGraph, result);
     }
 }
