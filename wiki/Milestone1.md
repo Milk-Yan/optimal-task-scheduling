@@ -22,6 +22,7 @@ the project using Maven.
 - Write information from a data structure representing a valid schedule into a dot file.
 
 ### Solution
+- [Commons CLI](https://commons.apache.org/proper/commons-cli/) was used to accept command line arguments.
 - [GraphStream](http://graphstream-project.org/) was used to read and write the dot files.
 - All methods to do with I/O parsing were extracted to an `IOParser` class.
 - The `IOParser` class does not contain any processing of the schedule.
@@ -51,6 +52,6 @@ as input to the algorithm
 - We are given a definite answer to whether the solution produced is a valid one.
 ### Solution
 - We used a ValidateSolution class to check that the solution is valid.
-- We used JUnit as a testing framework.
+- We used [JUnit](https://junit.org/junit4/) as a testing framework.
 ### Issues
 - Test cases were difficult to come up with because of the complexity of the problem.
