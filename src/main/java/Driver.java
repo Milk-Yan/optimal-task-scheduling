@@ -10,16 +10,44 @@ public class Driver {
      *             (-v) visualisation of search, (-o) name of output file
      */
     public static void main(String[] args) {
+        CommandLine cmd = getCommandLineOptions(args);
         String fileName = args[0];
-        int numProcessors = 1;
+        String outputFilePath = cmd.getOptionValue('o', args[0] + "-output.dot");
+        int numProcessors = 1; // Default value
+        int numThreads = 1; // Default value
+
+        // Get num processors for schedule
         try {
-            //If the num processors is not valid, i.e has not be given, then a number-
-            //format exception would be thrown, and the program will exit.
             numProcessors = Integer.parseInt(args[1]);
         } catch(NumberFormatException e){
-            System.out.println("Error number of processors invalid: Please enter the number of processors available");
+            System.err.println("Error: number of processors invalid");
             System.exit(1);
         }
+
+        // Get num threads to run program on
+        if(cmd.hasOption("p")){
+            try {
+                numThreads = Integer.parseInt(cmd.getOptionValue('p'));
+            } catch(NumberFormatException e) {
+                System.err.println("Error: number of threads invalid");
+                System.exit(1);
+            }
+            System.err.println("Note: the parallelised version has not been implemented yet, program will run on one thread");
+        }
+
+        // Get whether the user wants visualisation
+        if(cmd.hasOption('v')){
+            System.err.println("Note: the visual version has not been implemented yet");
+        }
+
+        //Run the solution
+        TaskGraph taskGraph = IOParser.read(fileName);
+        Solution solution = new Solution();
+        Task[] result = solution.run(taskGraph, numProcessors);
+        IOParser.write(outputFilePath, taskGraph, result);
+    }
+
+    private static CommandLine getCommandLineOptions(String[] args){
         Options options = new Options();
         Option p = new Option("p", true, "numCores");
         p.setRequired(false);
@@ -30,33 +58,17 @@ public class Driver {
         options.addOption(p);
         options.addOption(v);
         options.addOption(o);
-        CommandLine cmd;
+
         CommandLineParser parser = new DefaultParser();
-        //Default number of threads to use is 1;
-        int threads = 1;
-        boolean visual = false;
-        String outputFilePath = args[0] + "-output.dot";
+        CommandLine cmd = null;
         try {
             cmd = parser.parse(options, args);
-            //If p is set, then get the value;
-            if(cmd.hasOption("p")){
-                threads = Integer.parseInt(cmd.getOptionValue('p'));
-                System.out.println("Note: the parallelised version has not been implemented yet");
-            }
-            outputFilePath = cmd.getOptionValue('o', args[0] + "-output.dot");
-            visual = cmd.hasOption('v');
-            if(visual){
-                System.out.println("Note: the visual version has not been implemented yet");
-            }
         } catch (ParseException e) {
-            System.out.println("There was an issue reading the command line inputs");
-            System.out.println("Please insure that the program is run like: java -jar scheduler.jar INPUT.dot P [OPTION]");
+            System.err.println("There was an issue reading the command line inputs");
+            System.err.println("Please insure that the program is run like: java -jar scheduler.jar INPUT.dot P [OPTION]");
             System.exit(1);
         }
 
-        TaskGraph taskGraph = IOParser.read(fileName);
-        Solution solution = new Solution();
-        Task[] result = solution.run(taskGraph, numProcessors);
-        IOParser.write(outputFilePath, taskGraph, result);
+        return cmd;
     }
 }
