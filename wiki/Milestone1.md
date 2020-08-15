@@ -51,5 +51,6 @@ as input to the algorithm
 - We are given a definite answer to whether the solution produced is a valid one.
 ### Solution
 - We used a ValidateSolution class to check that the solution is valid.
+- We used JUnit as a testing framework.
 ### Issues
-- Test cases were difficult to come up with because 
+- Test cases were difficult to come up with because of the complexity of the problem.
