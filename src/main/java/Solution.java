@@ -54,7 +54,9 @@ public class Solution {
 
             // Schedule task
             int finishTime = minStartTime + durations[candidate];
-            output[candidate] = new Task(candidate, minStartTime, finishTime, minProcessor);
+
+            // Starting processor is 1, not 0, in the output (so need to increment)
+            output[candidate] = new Task(candidate, minStartTime, finishTime, minProcessor+1);
 
             // Update earliest schedule times for children
             for (int child: outList[candidate]) {
