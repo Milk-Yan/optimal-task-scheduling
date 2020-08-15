@@ -48,7 +48,7 @@ public class Driver {
                 System.out.println("Note: the parallelised version has not been implemented yet");
             }
             outputFilePath = cmd.getOptionValue('o', args[0] + "-output.dot");
-            boolean visual = cmd.hasOption('v');
+            visual = cmd.hasOption('v');
             if(visual){
                 System.out.println("Note: the visual version has not been implemented yet");
             }
