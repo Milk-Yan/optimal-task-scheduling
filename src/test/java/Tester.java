@@ -3,10 +3,12 @@ import org.junit.Test;
 import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-public class Tester{
+public class Tester {
 
     ValidateSolution validater = new ValidateSolution();
+
     @Test
     public void test() {
 
@@ -15,10 +17,16 @@ public class Tester{
          */
         final int n = 3;
         ArrayList<Integer>[] inList = (ArrayList<Integer>[]) new ArrayList[n];
-        inList[1] = new ArrayList<Integer>();
+        inList[1] = new ArrayList<>();
         inList[1].add(0);
         inList[2] = new ArrayList<>();
         inList[2].add(1);
+
+        ArrayList<Integer>[] outList = (ArrayList<Integer>[]) new ArrayList[n];
+        outList[0] = new ArrayList<>();
+        outList[0].add(1);
+        outList[1] = new ArrayList<>();
+        outList[1].add(2);
 
         /**
          * cost of A -> B: 2
@@ -43,15 +51,10 @@ public class Tester{
 
         int numProcessors = 2;
 
-        Task[] solution = new Task[n];
-        Task taskA = new Task(0, 0, 2, 0);
-        Task taskB = new Task(1, 2, 4, 0);
-        Task taskC = new Task(2, 4, 6, 0);
-        solution[0] = taskA;
-        solution[1] = taskB;
-        solution[2] = taskC;
+        Solution solution = new Solution();
+        Task[] result = solution.run(inList, outList, commCosts, durations, numProcessors);
 
-        assertEquals(true, validater.validate(inList, commCosts, durations, numProcessors, solution));
+        assertTrue(validater.validate(inList, commCosts, durations, numProcessors, result));
     }
 
     @Test

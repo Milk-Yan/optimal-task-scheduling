@@ -48,5 +48,8 @@ as input to the algorithm
 
 ## Validity Testing
 ### Expected outcomes
+- We are given a definite answer to whether the solution produced is a valid one.
 ### Solution
+- We used a ValidateSolution class to check that the solution is valid.
 ### Issues
+- Test cases were difficult to come up with because 

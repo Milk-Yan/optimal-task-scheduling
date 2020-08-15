@@ -31,8 +31,7 @@ public class Solution {
         Queue<Integer> scheduleCandidates = new PriorityQueue<>();
 
         for (int i = 0; i < n; i++) {
-            inDegrees[i] = inList[i].size();
-            if (inDegrees[i] == 0) {
+            if (inList[i] == null || inList[i].size() == 0) {
                 scheduleCandidates.add(i);
             }
         }
