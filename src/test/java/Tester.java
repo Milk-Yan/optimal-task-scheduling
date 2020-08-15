@@ -17,6 +17,7 @@ public class Tester {
          */
         final int n = 3;
         ArrayList<Integer>[] inList = (ArrayList<Integer>[]) new ArrayList[n];
+        inList[0] = new ArrayList<>();
         inList[1] = new ArrayList<>();
         inList[1].add(0);
         inList[2] = new ArrayList<>();
@@ -27,6 +28,7 @@ public class Tester {
         outList[0].add(1);
         outList[1] = new ArrayList<>();
         outList[1].add(2);
+        outList[2] = new ArrayList<>();
 
         /**
          * cost of A -> B: 2
@@ -59,6 +61,6 @@ public class Tester {
 
     @Test
     public void testEmpty() {
-        assertEquals(true, validater.validate(null, null, null, 2, null));
+        assertTrue(validater.validate(null, null, null, 2, null));
     }
 }
