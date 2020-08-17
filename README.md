@@ -6,7 +6,7 @@ This project attempts to solve a difficult scheduling problem for the leader of 
 There are two milestones for the project. There will be a GitHub release made for each milestone, including a runnable jar of the project.
 To run the jar, use the following command:
 ```
-java -jar schedular.jar INPUT.dot P [OPTION]
+java -jar scheduler.jar INPUT.dot P [OPTION]
 ```
 * `INPUT.dot` a task graph with integer weights in dot format
 * `P` number of processors to schedule the INPUT graph on
@@ -32,13 +32,17 @@ maven -version
 ```
 To install Maven on Linux, run the following command.
 ```
-sudo apt-get install mvn
+sudo apt-get install maven
 ```
 To compile the project, run the following command from the root directory of the project:
 ```
 mvn clean install
 ```
-This will create a runnable jar.
+This will create a runnable jar called `scheduler.jar`.
+To gain persmissions to execute the jar, run the following command.
+```
+chmod 777 scheduler.jar
+```
 
 ## Team Members
 * Peter Lindsay - [ArtificialSnow](https://github.com/ArtificialSnow)
