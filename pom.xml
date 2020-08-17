@@ -67,6 +67,7 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
+                            <outputDirectory>${basedir}</outputDirectory>
                             <finalName>scheduler</finalName>
                             <archive>
                                 <manifest>
