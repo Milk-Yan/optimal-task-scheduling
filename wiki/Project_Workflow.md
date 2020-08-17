@@ -3,7 +3,7 @@ This page documents the organisation and distribution of the project.
 ## Project Timeline
 The Gantt chart below shows the expected timeline for the completion of
 tasks needed for the project:
- ![](images\Gantt_Chart.jpg)
+ ![](images/Gantt_Chart.jpg)
  
 ## Meetings
 Team meetings were conducted in person on a regular basis (3 times a week). 
