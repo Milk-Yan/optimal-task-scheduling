@@ -1,4 +1,5 @@
 import java.io.IOException;
+
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.DefaultGraph;
@@ -52,9 +53,9 @@ public class IOParser {
 
         for(int i = 0; i < n; i++){
             Node node = dotGraph.getNode(i);
-            node.setAttribute("Start Time", result[i].startTime);
-            node.setAttribute("Processor", result[i].processor);
             node.setAttribute("Weight", taskDurations[i]);
+            node.setAttribute("Start", result[i].startTime);
+            node.setAttribute("Processor", result[i].processor);
         }
         FileSink file = new FileSinkDOT(true);
         try {
