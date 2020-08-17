@@ -16,8 +16,21 @@ OPTIONAL:
 * `-v` visualise the search
 * `-o OUTPUT` output file is named `OUTPUT` (default is INPUT-output.dot)
 
-### Compilation
-This is a [Maven](https://maven.apache.org/) Project. To install Maven on Linux, run the following command.
+## Building and Compiling
+Check that Java 1.8 is installed using the following command.
+```
+java -version
+```
+If it is not installed, you can install it on Linux using the following command.
+```
+sudo apt-get install openjdk-8-jdk
+```
+
+This is a [Maven](https://maven.apache.org/) Project. To check is Maven is installed, please run the following command.
+```
+maven -version
+```
+To install Maven on Linux, run the following command.
 ```
 sudo apt-get install mvn
 ```
@@ -25,6 +38,7 @@ To compile the project, run the following command from the root directory of the
 ```
 mvn clean install
 ```
+This will create a runnable jar.
 
 ## Team Members
 * Peter Lindsay - [ArtificialSnow](https://github.com/ArtificialSnow)
