@@ -12,7 +12,11 @@ public class Driver {
     public static void main(String[] args) {
         CommandLine cmd = getCommandLineOptions(args);
         String fileName = args[0];
-        String outputFilePath = cmd.getOptionValue('o', args[0] + "-output.dot");
+        String outputFilePath = cmd.getOptionValue('o', fileName.split("\\.")[0] + "-output.dot");
+        if (!outputFilePath.endsWith(".dot")) {
+            outputFilePath = outputFilePath.concat(".dot");
+        }
+
         int numProcessors = 1; // Default value
         int numThreads = 1; // Default value
 
