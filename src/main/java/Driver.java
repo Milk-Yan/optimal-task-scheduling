@@ -65,7 +65,7 @@ public class Driver {
             cmd = parser.parse(options, args);
         } catch (ParseException e) {
             System.err.println("There was an issue reading the command line inputs");
-            System.err.println("Please insure that the program is run like: java -jar scheduler.jar INPUT.dot P [OPTION]");
+            System.err.println("Please ensure that the program is run like: java -jar scheduler.jar INPUT.dot P [OPTION]");
             System.exit(1);
         }
 
