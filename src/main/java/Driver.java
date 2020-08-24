@@ -44,10 +44,17 @@ public class Driver {
             System.err.println("Note: the visual version has not been implemented yet");
         }
 
-        //Run the solution
+        // Read input file
         TaskGraph taskGraph = IOParser.read(fileName);
+
+        // Run greedy algorithm to determine lower bound of optimal solution
+        Greedy g = new Greedy();
+        int greedyTime = g.run(taskGraph, numProcessors);
+
+        // Run algorithm to find optimal schedule
         Solution solution = new Solution();
-        Task[] result = solution.run(taskGraph, numProcessors);
+        Task[] result = solution.run(taskGraph, numProcessors, greedyTime);
+
         IOParser.write(outputFilePath, taskGraph, result);
     }
 

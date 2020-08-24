@@ -49,11 +49,10 @@ public class IOParser {
     public static void write(String outputFileName, TaskGraph taskGraph, Task[] result) {
         int n = taskGraph.getNumberOfTasks();
         Graph dotGraph = taskGraph.getDotGraph();
-        int[] taskDurations = taskGraph.getDurations();
 
         for(int i = 0; i < n; i++){
             Node node = dotGraph.getNode(i);
-            node.setAttribute("Weight", taskDurations[i]);
+            node.setAttribute("Weight", taskGraph.getDuration(i));
             node.setAttribute("Start", result[i].startTime);
             node.setAttribute("Processor", result[i].processor);
         }

@@ -10,12 +10,11 @@ public class IOTester {
 
         //Requires there to be a file called input.dot in the same dir
         TaskGraph taskGraph = IOParser.read("./input.dot");
-        List<Integer>[] inList = taskGraph.getParentsList();
-        List<Integer>[] outList = taskGraph.getChildrenList();
+        int numTasks = taskGraph.getNumberOfTasks();
 
         //Testing if the in degrees of each node which has a parent are correct.
-        for(int i = 0; i < inList.length;i++){
-            List<Integer> list = inList[i];
+        for(int i = 0; i < numTasks; i++){
+            List<Integer> list = taskGraph.getParentsList(i);
             System.out.print(i + ": ");
             for(int j = 0; j<list.size(); j++){
                 System.out.print(list.get(j) + " ");
@@ -25,8 +24,8 @@ public class IOTester {
         System.out.println("**************************************************");
 
         //Testing if the in out degree of each node which has a child(s) is correct.
-        for(int i = 0; i < outList.length;i++){
-            List<Integer> list = outList[i];
+        for(int i = 0; i < numTasks; i++){
+            List<Integer> list = taskGraph.getChildrenList(i);
             System.out.print(i + ": ");
             for(int j = 0; j<list.size(); j++){
                 System.out.print(list.get(j) + " ");
@@ -36,19 +35,17 @@ public class IOTester {
         System.out.println("**************************************************");
 
         //Testing if weights of each node are read correctly.
-        int[] weights = taskGraph.getDurations();
-        for(int i = 0; i < weights.length; i++){
+        for(int i = 0; i < numTasks; i++){
             System.out.print(i + ": ");
-            System.out.println(weights[i]);
+            System.out.println(taskGraph.getDuration(i));
         }
 
         //Printing out the communication costs.
         System.out.println("**************************************************");
-        int[][] commCosts = taskGraph.getCommCosts();
-        for(int i = 0; i< commCosts.length; i++){
-            for(int j = 0; j< commCosts[0].length; j++){
-                if(commCosts[i][j] != 0){
-                    System.out.println(i +  "->" + j + " = " + commCosts[i][j]);
+        for(int i = 0; i < numTasks; i++){
+            for(int j = 0; j < numTasks; j++){
+                if(taskGraph.getCommCost(i,j) != 0){
+                    System.out.println(i +  "->" + j + " = " + taskGraph.getCommCost(i,j));
                 }
             }
         }

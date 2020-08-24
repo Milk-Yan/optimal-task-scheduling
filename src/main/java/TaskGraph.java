@@ -83,40 +83,36 @@ public class TaskGraph {
     }
 
     /**
-     * n = number of tasks.
-     * @return an Array of size n:
-     * parentsList[i] => List of all parents of task i
+     * @param task task to get parents of
+     * @return list of parents of task
      */
-    public List<Integer>[] getParentsList() {
-        return parentsList;
+    public List<Integer> getParentsList(int task) {
+        return parentsList[task];
     }
 
     /**
-     * n = number of tasks.
-     * @return an Array of size n:
-     * childrenList[i] => List of all children of task i
+     * @param task task to get children of
+     * @return list of children of task
      */
-    public List<Integer>[] getChildrenList() {
-        return childrenList;
+    public List<Integer> getChildrenList(int task) {
+        return childrenList[task];
     }
 
     /**
-     * n = number of tasks.
-     * @return an Array of size n:
-     * durations[i] => (int) the length of task i
+     * @param task task to get duration of
+     * @return duration of specified task
      */
-    public int[] getDurations() {
-        return durations;
+    public int getDuration(int task) {
+        return durations[task];
     }
 
     /**
-     * n = number of tasks.
-     * @return an Array[][] of size n x n:
-     * durations[i][j] => (int) the communication cost between task i -> j
-     *
-     * if (i is not a parent of j) durations[i][j] => 0
+     * @param parent parent task
+     * @param child task which depends on source
+     * @return communication cost of scheduling dest on another processor from source
+     * if (parent is not a parent of child), returns 0
      */
-    public int[][] getCommCosts() {
-        return commCosts;
+    public int getCommCost(int parent, int child) {
+        return commCosts[parent][child];
     }
 }
