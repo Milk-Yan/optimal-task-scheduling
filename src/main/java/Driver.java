@@ -1,6 +1,11 @@
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import org.apache.commons.cli.*;
 
-public class Driver {
+public class Driver extends Application {
 
     /**
      * Main method of the project from which everything is instantiated and run.
@@ -41,7 +46,7 @@ public class Driver {
 
         // Get whether the user wants visualisation
         if(cmd.hasOption('v')){
-            System.err.println("Note: the visual version has not been implemented yet");
+            launch(args);
         }
 
         // Read input file
@@ -56,6 +61,17 @@ public class Driver {
         Task[] result = solution.run(taskGraph, numProcessors, greedyTime);
 
         IOParser.write(outputFilePath, taskGraph, result);
+    }
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        System.out.println("here");
+        FXMLLoader loader  = new FXMLLoader(getClass().getResource("visualisation-view.fxml"));
+        Parent root = loader.load();
+        primaryStage.setTitle("Task Scheduler Visualisation");
+        primaryStage.setScene(new Scene(root, 300, 275));
+        primaryStage.show();
+
     }
 
     private static CommandLine getCommandLineOptions(String[] args){
