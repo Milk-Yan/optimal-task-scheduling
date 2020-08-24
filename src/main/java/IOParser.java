@@ -20,9 +20,9 @@ public class IOParser {
     /**
      * Reads a dot file into a TaskGraph object that encapsulates the initial tasks and their dependencies.
      * @param inputFileName The name of the input dot file.
-     * @return TaskGraph object that encapsulates the initial tasks and their dependencies
+     * @return Graph object that encapsulates the initial tasks and their dependencies
      */
-    public static TaskGraph read(String inputFileName) {
+    public static Graph read(String inputFileName) {
         Graph graph = new DefaultGraph("tempGraph");
         FileSource fileSource = new FileSourceDOT();
 
@@ -35,7 +35,7 @@ public class IOParser {
           fileSource.removeSink(graph);
         }
 
-        return new TaskGraph(graph);
+        return graph;
     }
 
 
@@ -43,18 +43,17 @@ public class IOParser {
     /**
      * Writes a set of results to the output dot file.
      * @param outputFileName The name of the output dot file.
-     * @param taskGraph TaskGraph object that encapsulates the initial tasks and their dependencies.
+     * @param dotGraph Graph object that encapsulates the initial tasks and their dependencies.
      * @param result List of scheduled tasks.
      */
-    public static void write(String outputFileName, TaskGraph taskGraph, Task[] result) {
-        int n = taskGraph.getNumberOfTasks();
-        Graph dotGraph = taskGraph.getDotGraph();
+    public static void write(String outputFileName, Graph dotGraph, Task[] result) {
 
-        for(int i = 0; i < n; i++){
+        for(int i = 0; i < dotGraph.getNodeCount(); i++){
             Node node = dotGraph.getNode(i);
-            node.setAttribute("Weight", taskGraph.getDuration(i));
-            node.setAttribute("Start", result[i].startTime);
-            node.setAttribute("Processor", result[i].processor);
+            Task task = result[i];
+            node.setAttribute("Weight", task.getFinishTime() - task.getStartTime());
+            node.setAttribute("Start", task.getStartTime());
+            node.setAttribute("Processor", task.getProcessor());
         }
         FileSink file = new FileSinkDOT(true);
         try {

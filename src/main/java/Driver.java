@@ -4,6 +4,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.apache.commons.cli.*;
+import org.graphstream.graph.Graph;
 
 public class Driver extends Application {
 
@@ -50,7 +51,8 @@ public class Driver extends Application {
         }
 
         // Read input file
-        TaskGraph taskGraph = IOParser.read(fileName);
+        Graph dotGraph = IOParser.read(fileName);
+        TaskGraph taskGraph = new TaskGraph(dotGraph);
 
         // Run greedy algorithm to determine lower bound of optimal solution
         Greedy g = new Greedy();
@@ -60,7 +62,7 @@ public class Driver extends Application {
         Solution solution = new Solution();
         Task[] result = solution.run(taskGraph, numProcessors, greedyTime);
 
-        IOParser.write(outputFilePath, taskGraph, result);
+        IOParser.write(outputFilePath, dotGraph, result);
     }
 
     @Override
