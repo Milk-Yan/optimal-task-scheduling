@@ -1,12 +1,7 @@
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
 import org.apache.commons.cli.*;
 import org.graphstream.graph.Graph;
 
-public class Driver extends Application {
+public class Driver {
 
     /**
      * Main method of the project from which everything is instantiated and run.
@@ -47,7 +42,8 @@ public class Driver extends Application {
 
         // Get whether the user wants visualisation
         if(cmd.hasOption('v')){
-            launch(args);
+            Visualiser visualiser = new Visualiser();
+            visualiser.run(args);
         }
 
         // Read input file
@@ -65,16 +61,7 @@ public class Driver extends Application {
         IOParser.write(outputFilePath, dotGraph, result);
     }
 
-    @Override
-    public void start(Stage primaryStage) throws Exception {
-        System.out.println("here");
-        FXMLLoader loader  = new FXMLLoader(getClass().getResource("visualisation-view.fxml"));
-        Parent root = loader.load();
-        primaryStage.setTitle("Task Scheduler Visualisation");
-        primaryStage.setScene(new Scene(root, 300, 275));
-        primaryStage.show();
 
-    }
 
     private static CommandLine getCommandLineOptions(String[] args){
         Options options = new Options();
