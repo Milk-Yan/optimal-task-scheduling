@@ -39,7 +39,8 @@ public class Visualiser extends Application {
         controller.addTask(0,100,260);
         controller.addTask(1,100,100);
         controller.removeLast();
-        controller.addTask(1,100,1000);
         controller.addTask(3,100,100);
+        controller.addTask(1,1000,500);
+        controller.addTask(1,130,1500);
     }
 }

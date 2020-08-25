@@ -49,6 +49,7 @@ public class Controller {
 
         int idleTime = startTime - processorFinishTimes[processor].peek();
         processorFinishTimes[processor].push(startTime + duration);
+        System.out.println(processorFinishTimes[processor].peek());
 
         XYChart.Series idle = new XYChart.Series();
         idle.getData().add(new XYChart.Data("Processor " + (processor + 1), idleTime));
@@ -58,14 +59,6 @@ public class Controller {
 
         stackedBarChart.getData().add(idle);
         stackedBarChart.getData().add(task);
-
-//        Node idleNode = stackedBarChart.lookup(".default-color" + count + ".chart-bar");
-//        System.out.println(count);
-//        idleNode.setStyle("-fx-bar-fill: rgba(255, 255, 255, 0);");
-//        count++;
-//        Node taskNode = stackedBarChart.lookup(".default-color" + count + ".chart-bar");
-//        taskNode.setStyle("-fx-bar-fill:  #e9c4bc");
-//        count++;
     }
 
     public void removeLast() {
