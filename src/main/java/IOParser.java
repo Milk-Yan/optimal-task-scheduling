@@ -53,7 +53,8 @@ public class IOParser {
             Task task = result[i];
             node.setAttribute("Weight", task.getFinishTime() - task.getStartTime());
             node.setAttribute("Start", task.getStartTime());
-            node.setAttribute("Processor", task.getProcessor());
+            // the output uses processor numbers from 1, but the data is stored from 0
+            node.setAttribute("Processor", task.getProcessor() + 1);
         }
         FileSink file = new FileSinkDOT(true);
         try {

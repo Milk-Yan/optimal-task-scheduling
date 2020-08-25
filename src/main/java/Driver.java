@@ -52,27 +52,35 @@ public class Driver {
 
         // Run greedy algorithm to determine lower bound of optimal solution
         Greedy g = new Greedy();
-        int greedyTime = g.run(taskGraph, numProcessors);
+        Schedule greedySchedule = g.run(taskGraph, numProcessors);
 
         // Run algorithm to find optimal schedule
         Solution solution = new Solution();
-        Task[] result = solution.run(taskGraph, numProcessors, greedyTime);
+        long startTime = System.currentTimeMillis();
+        Schedule result = solution.run(taskGraph, numProcessors, greedySchedule.getFinishTime());
+        System.out.print(System.currentTimeMillis() - startTime);
 
-        IOParser.write(outputFilePath, dotGraph, result);
+        // Our solution ignores all schedules that are >= than the greedy schedule,
+        // so this is to ensure if nothing is faster, we return the greedy schedule.
+        if (result.getFinishTime() >= greedySchedule.getFinishTime()) {
+            IOParser.write(outputFilePath, dotGraph, greedySchedule.getTasks());
+        } else {
+            IOParser.write(outputFilePath, dotGraph, result.getTasks());
+        }
     }
-
-
 
     private static CommandLine getCommandLineOptions(String[] args){
         Options options = new Options();
         Option p = new Option("p", true, "numCores");
         p.setRequired(false);
+        options.addOption(p);
+
         Option v = new Option("v", false, "visualization");
         v.setRequired(false);
+        options.addOption(v);
+
         Option o = new Option("o", true, "output");
         o.setRequired(false);
-        options.addOption(p);
-        options.addOption(v);
         options.addOption(o);
 
         CommandLineParser parser = new DefaultParser();
