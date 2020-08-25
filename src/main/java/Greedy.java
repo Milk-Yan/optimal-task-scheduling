@@ -15,18 +15,11 @@ public class Greedy {
         int n = taskGraph.getNumberOfTasks();
         int finalFinishTime = 0;
 
-        // create output array
         Task[] output = new Task[n];
+        int[][] earliestScheduleTimes = new int[n][numProcessors]; // i,j indicates earliest time to schedule task i on processor j
 
-        // i,j indicates earliest time to schedule task i on processor j
-        int[][] earliestScheduleTimes = new int[n][numProcessors];
-
-        // initialise array with in degree of vertices
         int[] inDegrees = new int[n];
-
-        // initialise list of vertices with in degree = 0
         Queue<Integer> scheduleCandidates = new LinkedList<>();
-
         for (int i = 0; i < n; i++) {
             inDegrees[i] = taskGraph.getParentsList(i).size();
             if (inDegrees[i] == 0) {

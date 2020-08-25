@@ -53,7 +53,9 @@ public class Driver {
 
         // Run algorithm to find optimal schedule
         Solution solution = new Solution();
+        long startTime = System.currentTimeMillis();
         Schedule result = solution.run(taskGraph, numProcessors, greedySchedule.getFinishTime());
+        System.out.print(System.currentTimeMillis() - startTime);
 
         // Our solution ignores all schedules that are >= than the greedy schedule,
         // so this is to ensure if nothing is faster, we return the greedy schedule.
@@ -69,12 +71,14 @@ public class Driver {
         Options options = new Options();
         Option p = new Option("p", true, "numCores");
         p.setRequired(false);
+        options.addOption(p);
+
         Option v = new Option("v", false, "visualization");
         v.setRequired(false);
+        options.addOption(v);
+
         Option o = new Option("o", true, "output");
         o.setRequired(false);
-        options.addOption(p);
-        options.addOption(v);
         options.addOption(o);
 
         CommandLineParser parser = new DefaultParser();
