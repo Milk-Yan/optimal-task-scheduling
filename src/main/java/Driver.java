@@ -49,13 +49,20 @@ public class Driver {
 
         // Run greedy algorithm to determine lower bound of optimal solution
         Greedy g = new Greedy();
-        int greedyTime = g.run(taskGraph, numProcessors);
+        Schedule greedySchedule = g.run(taskGraph, numProcessors);
 
         // Run algorithm to find optimal schedule
         Solution solution = new Solution();
-        Task[] result = solution.run(taskGraph, numProcessors, greedyTime);
+        Schedule result = solution.run(taskGraph, numProcessors, greedySchedule.getFinishTime());
 
-        IOParser.write(outputFilePath, taskGraph, result);
+        // Our solution ignores all schedules that are >= than the greedy schedule,
+        // so this is to ensure if nothing is faster, we return the greedy schedule.
+        if (result.getFinishTime() >= greedySchedule.getFinishTime()) {
+            IOParser.write(outputFilePath, taskGraph, greedySchedule.getTasks());
+        } else {
+            IOParser.write(outputFilePath, taskGraph, result.getTasks());
+        }
+
     }
 
     private static CommandLine getCommandLineOptions(String[] args){

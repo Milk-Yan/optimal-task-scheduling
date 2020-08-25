@@ -54,7 +54,8 @@ public class IOParser {
             Node node = dotGraph.getNode(i);
             node.setAttribute("Weight", taskGraph.getDuration(i));
             node.setAttribute("Start", result[i].startTime);
-            node.setAttribute("Processor", result[i].processor);
+            // the output uses processor numbers from 1, but the data is stored from 0
+            node.setAttribute("Processor", result[i].processor + 1);
         }
         FileSink file = new FileSinkDOT(true);
         try {

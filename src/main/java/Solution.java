@@ -1,4 +1,3 @@
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -6,9 +5,10 @@ public class Solution {
     private TaskGraph taskGraph;
     private int numProcessors;
 
+    private int[] maxLengthToExitNode;
     private int[] inDegrees; // inDegrees[i] => number of unscheduled parent tasks of task i
     private int[] startTimes; // startTimes[i] => start time of task i
-    private int[] scheduledOn;  // scheduledOn[i] => the processor task i is scheduled on (-1 if not scheduled)
+    private int[] scheduledOn;  // scheduledOn[i] => the processor task i is scheduled on
     private int[] processorFinishTimes; // processorAvailability[i] => finishing time of the last task scheduled on processor i
     private int remainingDuration = 0; // total duration of remaining tasks to be scheduled (used for pruning)
 
@@ -25,9 +25,10 @@ public class Solution {
      * @param upperBoundTime Upper bound of running time that the optimal solution should do at least as good as.
      * @return optimal schedule found by the run method.
      */
-    public Task[] run(TaskGraph taskGraph, int numProcessors, int upperBoundTime) {
+    public Schedule run(TaskGraph taskGraph, int numProcessors, int upperBoundTime) {
         // initialisation of fields
         this.taskGraph = taskGraph;
+        this.maxLengthToExitNode = PreProcessor.maxLengthToExitNode(taskGraph);
         this.numProcessors = numProcessors;
         this.bestTime = upperBoundTime;
         int n = taskGraph.getNumberOfTasks();
@@ -38,7 +39,6 @@ public class Solution {
         processorFinishTimes = new int[numProcessors];
         startTimes = new int[n];
         scheduledOn = new int[n];
-        Arrays.fill(scheduledOn, -1);
         scheduleCandidates = new LinkedList<>();
         for (int i = 0; i < n; i++) {
             // calculate remaining duration of tasks to be scheduled
@@ -58,7 +58,7 @@ public class Solution {
                     bestStartTime[i] + taskGraph.getDuration(i), bestScheduledOn[i]);
             optimalSchedule[i] = t;
         }
-        return optimalSchedule;
+        return new Schedule(optimalSchedule, bestTime);
     }
 
     /**
@@ -76,7 +76,7 @@ public class Solution {
             }
 
             // check if this schedule has the best time
-            if (finishTime <= bestTime) {
+            if (finishTime < bestTime) {
                 bestTime = finishTime;
 
                 // update the best schedule
@@ -94,99 +94,98 @@ public class Solution {
 
         // find the processor which finishes earliest in current schedule
         int earliestProcessorFinishTime = Integer.MAX_VALUE;
+        int latestProcessorFinishTime = 0;
         for (int l = 0; l < numProcessors; l++) {
             earliestProcessorFinishTime = Math.min(processorFinishTimes[l], earliestProcessorFinishTime);
+            latestProcessorFinishTime = Math.max(processorFinishTimes[l], latestProcessorFinishTime);
         }
 
-        // only continue processing this state if it is possible to do better than the current best time we have found
-        if(earliestProcessorFinishTime + minRemainingTime < bestTime) {
+        // recursively try different schedules
+        for (int i = 0; i < scheduleCandidates.size(); i++) {
+            int candidateTask = scheduleCandidates.remove(); // get task to try schedule
 
-            // recursively try different schedules
-            for (int i = 0; i < scheduleCandidates.size(); i++) {
-                // get task to try schedule
-                int candidateTask = scheduleCandidates.remove();
-                // remaining tasks to schedule does not include candidate task
-                remainingDuration -= taskGraph.getDuration(candidateTask);
-
-                // get children of candidate task
-                List<Integer> candidateChildren = taskGraph.getChildrenList(candidateTask);
-
-                // update in degrees of children of candidate
-                for (Integer candidateChild : candidateChildren) {
-                    inDegrees[candidateChild]--;
-                    // add child to queue if it has no more parents to process
-                    if (inDegrees[candidateChild] == 0) {
-                        scheduleCandidates.add(candidateChild);
-                    }
-                }
-
-                // whether this task has been scheduled at time 0 on a processor before
-                // used to prune tree
-                boolean scheduledOnZero = false;
-
-                // schedule candidate task on each processor
-                for (int candidateProcessor = 0; candidateProcessor < numProcessors; candidateProcessor++) {
-
-                    // check if this task is being scheduled at time 0 on candidate processor
-                    if (processorFinishTimes[candidateProcessor] == 0) {
-                        // check if we have scheduled this task at time 0 on another processor before
-                        // if so, this state has already been checked
-                        if (scheduledOnZero) {
-                            continue;
-                        } else {
-                            scheduledOnZero = true;
-                        }
-                    }
-
-                    List<Integer> parents = taskGraph.getParentsList(candidateTask);
-
-                    // find the earliest time the candidate task can be scheduled on the candidate processor
-                    int earliestStartTime = Integer.MIN_VALUE;
-                    for (int parent : parents) {
-                        // check constraints due to comm costs of parents on other processors
-                        if (scheduledOn[parent] != candidateProcessor) {
-                            earliestStartTime = Math.max(earliestStartTime, startTimes[parent] +
-                                    taskGraph.getDuration(parent) + taskGraph.getCommCost(parent, candidateTask));
-                        }
-                    }
-                    // check constraint of latest finishing time of task on candidate processor
-                    earliestStartTime = Math.max(earliestStartTime, processorFinishTimes[candidateProcessor]);
-
-                    // store finish time of candidate processor before scheduling candidate task
-                    // used for backtracking
-                    int prevFinishTime = processorFinishTimes[candidateProcessor];
-
-                    // update finish time of candidate processor to finishing time of scheduled candidate task
-                    processorFinishTimes[candidateProcessor] = earliestStartTime + taskGraph.getDuration(candidateTask);
-
-                    // update processor the candidate task is scheduled on
-                    scheduledOn[candidateTask] = candidateProcessor;
-
-                    // update start time of candidate task
-                    startTimes[candidateTask] = earliestStartTime;
-
-                    // recursive step
-                    recursiveSearch();
-
-                    // revert candidate processor's finish time
-                    processorFinishTimes[candidateProcessor] = prevFinishTime;
-                }
-
-                // backtracking
-                // remove scheduling of candidate task
-                scheduledOn[candidateTask] = -1;
-                // revert totalSum to include candidate task
-                remainingDuration += taskGraph.getDuration(candidateTask);
-                for (Integer candidateChild : candidateChildren) {
-                    // revert changes made to children
-                    inDegrees[candidateChild]++;
-                    if (inDegrees[candidateChild] == 1) {
-                        scheduleCandidates.removeLast();
-                    }
-                }
-                // add candidate task back to queue since it is now unscheduled
+            // only continue processing this state if it is possible to do better than the current best time we have found
+            boolean loadBalancingCond = earliestProcessorFinishTime + minRemainingTime >= bestTime;
+            boolean criticalPathCond = earliestProcessorFinishTime + maxLengthToExitNode[candidateTask] >= bestTime;
+            boolean finishTimeCond = latestProcessorFinishTime >= bestTime;
+            if(loadBalancingCond || criticalPathCond || finishTimeCond) {
+                //backtracking time
                 scheduleCandidates.add(candidateTask);
+                continue;
             }
+
+            remainingDuration -= taskGraph.getDuration(candidateTask); // remaining tasks to schedule does not include candidate task
+            List<Integer> candidateChildren = taskGraph.getChildrenList(candidateTask); // get children of candidate task
+
+            // update in degrees of children of candidate
+            for (Integer candidateChild : candidateChildren) {
+                inDegrees[candidateChild]--;
+                // add child to queue if it has no more parents to process
+                if (inDegrees[candidateChild] == 0) {
+                    scheduleCandidates.add(candidateChild);
+                }
+            }
+
+            // whether this task has been scheduled at time 0 on a processor before
+            // used to prune tree
+            boolean scheduledOnZero = false;
+
+            // schedule candidate task on each processor
+            for (int candidateProcessor = 0; candidateProcessor < numProcessors; candidateProcessor++) {
+                // check if this task is being scheduled at time 0 on candidate processor
+                if (processorFinishTimes[candidateProcessor] == 0) {
+                    // check if we have scheduled this task at time 0 on another processor before
+                    // if so, this state has already been checked
+                    if (scheduledOnZero) {
+                        continue;
+                    } else {
+                        scheduledOnZero = true;
+                    }
+                }
+
+                List<Integer> parents = taskGraph.getParentsList(candidateTask);
+
+                // find the earliest time the candidate task can be scheduled on the candidate processor
+                int earliestStartTime = Integer.MIN_VALUE;
+                for (int parent : parents) {
+                    // check constraints due to comm costs of parents on other processors
+                    if (scheduledOn[parent] != candidateProcessor) {
+                        earliestStartTime = Math.max(earliestStartTime, startTimes[parent] +
+                                taskGraph.getDuration(parent) + taskGraph.getCommCost(parent, candidateTask));
+                    }
+                }
+                // check constraint of latest finishing time of task on candidate processor
+                earliestStartTime = Math.max(earliestStartTime, processorFinishTimes[candidateProcessor]);
+
+                // only continue processing this state if it is possible to do better than the current best time we have found
+                criticalPathCond = earliestStartTime + maxLengthToExitNode[candidateTask] >= bestTime;
+                if(criticalPathCond) {
+                    continue;
+                }
+
+                int prevFinishTime = processorFinishTimes[candidateProcessor]; // store finish time of candidate processor before scheduling candidate task (used for backtracking)
+                processorFinishTimes[candidateProcessor] = earliestStartTime + taskGraph.getDuration(candidateTask); // update finish time of candidate processor to finishing time of scheduled candidate task
+                scheduledOn[candidateTask] = candidateProcessor; // update processor the candidate task is scheduled on
+                startTimes[candidateTask] = earliestStartTime; // update start time of candidate task
+
+                recursiveSearch();
+
+                // revert candidate processor's finish time
+                processorFinishTimes[candidateProcessor] = prevFinishTime;
+            }
+
+            // backtracking
+            // revert totalSum to include candidate task
+            remainingDuration += taskGraph.getDuration(candidateTask);
+            for (Integer candidateChild : candidateChildren) {
+                // revert changes made to children
+                inDegrees[candidateChild]++;
+                if (inDegrees[candidateChild] == 1) {
+                    scheduleCandidates.removeLast();
+                }
+            }
+            // add candidate task back to queue since it is now unscheduled
+            scheduleCandidates.add(candidateTask);
         }
     }
 }
