@@ -1,27 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.StackedBarChart?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-
-<HBox maxHeight="500.0" maxWidth="700.0" minHeight="500.0" minWidth="700.0" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<HBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <VBox prefHeight="200.0" prefWidth="100.0" spacing="20.0">
+      <VBox>
          <children>
             <ImageView fitHeight="250.0" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@logo.jpg" />
                </image>
             </ImageView>
-            <VBox spacing="10.0">
+            <VBox>
                <children>
                   <Label text="States Examined">
                      <font>
@@ -33,7 +34,6 @@
                         <Font size="23.0" />
                      </font>
                   </Label>
-                  <Region prefHeight="0.0" prefWidth="227.0" />
                   <Label text="Best Scheduling">
                      <font>
                         <Font name="System Bold" size="23.0" />
@@ -45,13 +45,10 @@
                      </font>
                   </Label>
                </children>
-               <padding>
-                  <Insets left="10.0" />
-               </padding>
             </VBox>
          </children>
       </VBox>
-      <VBox prefHeight="500.0" prefWidth="474.0" spacing="10.0">
+      <VBox spacing="10.0">
          <children>
             <HBox alignment="CENTER">
                <children>
@@ -62,16 +59,16 @@
                   </Text>
                </children>
             </HBox>
-            <ScrollPane hbarPolicy="NEVER" prefHeight="460.0" prefWidth="462.0">
+            <ScrollPane hbarPolicy="NEVER">
                <content>
-                  <HBox alignment="CENTER" prefHeight="428.0" prefWidth="450.0" spacing="10.0">
-                     <children>
-                        <VBox maxWidth="90.0" minHeight="400.0" minWidth="90.0" prefHeight="400.0" prefWidth="90.0" style="-fx-background-color: red;" />
-                        <VBox maxWidth="90.0" minHeight="400.0" minWidth="90.0" prefHeight="400.0" prefWidth="90.0" style="-fx-background-color: red;" />
-                        <VBox maxWidth="90.0" minHeight="400.0" minWidth="90.0" prefHeight="400.0" prefWidth="90.0" style="-fx-background-color: red;" />
-                        <VBox maxWidth="90.0" minHeight="400.0" minWidth="90.0" prefHeight="400.0" prefWidth="90.0" style="-fx-background-color: red;" />
-                     </children>
-                  </HBox>
+                  <StackedBarChart rotate="180.0">
+                    <xAxis>
+                      <CategoryAxis side="LEFT" />
+                    </xAxis>
+                    <yAxis>
+                      <NumberAxis side="RIGHT" tickLabelRotation="-180.0" />
+                    </yAxis>
+                  </StackedBarChart>
                </content>
             </ScrollPane>
          </children>
