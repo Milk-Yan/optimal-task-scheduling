@@ -9,6 +9,7 @@ import javafx.scene.chart.StackedBarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class Visualiser extends Application {
 
@@ -23,14 +24,15 @@ public class Visualiser extends Application {
         Parent root = loader.load();
 
         Controller controller = loader.getController();
-        controller.setUpArgs(3);
+        controller.setUpArgs(4);
         controller.addTask(0,100,10);
         controller.addTask(1,200,10);
         controller.removeLast();
         controller.addTask(2,100,100);
 
         primaryStage.setTitle("Task Scheduler Visualisation");
-        primaryStage.setScene(new Scene(root, 300, 275));
+        primaryStage.setScene(new Scene(root, 780, 475));
+        primaryStage.setResizable(false);
         primaryStage.show();
     }
 }

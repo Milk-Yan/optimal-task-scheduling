@@ -1,6 +1,7 @@
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.chart.*;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
@@ -8,7 +9,7 @@ import java.util.List;
 
 public class Controller {
     @FXML
-    private VBox taskChartContainer;
+    private Pane taskChartContainer;
     private StackedBarChart stackedBarChart;
     private CategoryAxis xAxis;
 
