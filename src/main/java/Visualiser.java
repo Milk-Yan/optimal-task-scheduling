@@ -29,6 +29,7 @@ public class Visualiser extends Application {
         controller.addTask(1,200,10);
         controller.removeLast();
         controller.addTask(2,100,100);
+        controller.addTask(0,100,150);
 
         primaryStage.setTitle("Task Scheduler Visualisation");
         primaryStage.setScene(new Scene(root, 780, 475));

@@ -1,5 +1,6 @@
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.chart.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -16,6 +17,7 @@ public class Controller {
     private int[] processorFinishTimes;
     private XYChart.Series lastTask;
     private XYChart.Series lastIdle;
+    int count = 0;
 
     public void setUpArgs(int numProcessors) {
         processorFinishTimes = new int[numProcessors];
@@ -38,9 +40,17 @@ public class Controller {
 
         stackedBarChart.getData().add(lastIdle);
         stackedBarChart.getData().add(lastTask);
+
+        Node idleNode = stackedBarChart.lookup(".default-color" + count + ".chart-bar");
+        idleNode.setStyle("-fx-bar-fill: rgba(255, 255, 255, 0);");
+        count++;
+        Node taskNode = stackedBarChart.lookup(".default-color" + count + ".chart-bar");
+        taskNode.setStyle("-fx-bar-fill:  #e9c4bc");
+        count++;
     }
 
     public void removeLast() {
+        count -= 2;
         stackedBarChart.getData().remove(lastTask);
         stackedBarChart.getData().remove(lastIdle);
     }
