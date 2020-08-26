@@ -74,6 +74,7 @@ public class Driver extends Application {
         } else {
             IOParser.write(outputFilePath, dotGraph, result.getTasks());
         }
+        System.exit(0);
     }
 
     @Override
