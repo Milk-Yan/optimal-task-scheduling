@@ -348,18 +348,6 @@ public class Solution {
             return;
         }
 
-        //Update the state: Location 1
-        int firstTask = ftoSortedList.poll();
-        LinkedList<Integer> duplicate = new LinkedList<>(ftoSortedList);
-        remainingDuration -= taskGraph.getDuration(firstTask);
-
-        boolean taskHasChild = !taskGraph.getChildrenList(firstTask).isEmpty();
-        if (taskHasChild) {
-            int child = taskGraph.getChildrenList(firstTask).get(0);
-            inDegrees[child]--;
-            duplicate.add(child);
-        }
-
         // Information we need about the current schedule
         // minimal remaining time IF all remaining tasks are evenly distributed amongst processors.
         int loadBalancedRemainingTime = (int) Math.ceil(remainingDuration / (double) numProcessors);
@@ -386,6 +374,19 @@ public class Solution {
         if (loadBalancingConstraint || criticalPathConstraint || latestFinishTimeConstraint) {
             return;
         }
+
+        //Update the state: Location 1
+        int firstTask = ftoSortedList.poll();
+        LinkedList<Integer> duplicate = new LinkedList<>(ftoSortedList);
+        remainingDuration -= taskGraph.getDuration(firstTask);
+
+        boolean taskHasChild = !taskGraph.getChildrenList(firstTask).isEmpty();
+        if (taskHasChild) {
+            int child = taskGraph.getChildrenList(firstTask).get(0);
+            inDegrees[child]--;
+            duplicate.add(child);
+        }
+
 
         // since we have a FTO, we can schedule the first task on all processors.
         boolean hasBeenScheduledAtStart = false;
@@ -431,10 +432,14 @@ public class Solution {
             processorFinishTimes[candidateProcessor] = prevFinishTime;
         }
 
-        // Backtrack: Location 2
-        int child = taskGraph.getChildrenList(firstTask).get(0);
-        inDegrees[child]++;
-        taskStartTimes[firstTask] = -1;
+        // Backtrack: Location 1
+        if(taskHasChild) {
+            int child = taskGraph.getChildrenList(firstTask).get(0);
+            inDegrees[child]++;
+            duplicate.removeLast();
+        }
         remainingDuration += taskGraph.getDuration(firstTask);
+        duplicate.add(firstTask);
+        taskStartTimes[firstTask] = -1;
     }
 }
