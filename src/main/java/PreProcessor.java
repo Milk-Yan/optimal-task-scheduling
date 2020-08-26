@@ -1,3 +1,7 @@
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 public class PreProcessor {
@@ -33,4 +37,51 @@ public class PreProcessor {
         lengths[node] = maxLength + taskGraph.getDuration(node);
         return lengths[node];
     }
+
+
+    public static ArrayList<Integer>[] getNodeEquivalence(TaskGraph taskGraph){
+        HashSet<Integer> seen = new HashSet<>();
+        int numTasks = taskGraph.getNumberOfTasks();
+        ArrayList<Integer>[] equivalentNodesList = new ArrayList[numTasks];
+
+        for(int i = 0; i<numTasks; i++) {
+            if (!seen.contains(i)) {
+                ArrayList<Integer> equivalentNodes = new ArrayList<>();
+                equivalentNodes.add(i);
+                for (int j = 0; j < numTasks; j++) {
+                    if (j != i && !seen.contains(j)) {
+                        boolean equivalent = compare(i, j, taskGraph);
+                        if (equivalent) {
+                            equivalentNodes.add(j);
+                        }
+                    }
+                }
+                for (int j = 0; j < equivalentNodes.size(); j++) {
+                    equivalentNodesList[equivalentNodes.get(j)] = equivalentNodes;
+                    seen.add(equivalentNodes.get(j));
+                }
+            }
+        }
+        return equivalentNodesList;
+    }
+
+    private static boolean compare(int a, int b, TaskGraph taskGraph){
+        if(taskGraph.getDuration(a) != taskGraph.getDuration(b)) {
+            return false;
+        }
+
+        List<Integer> aParents = taskGraph.getParentsList(a);
+        List<Integer> bParents = taskGraph.getParentsList(b);
+        List<Integer> aChildren = taskGraph.getChildrenList(a);;
+        List<Integer> bChildren = taskGraph.getChildrenList(b);
+
+        // the two tasks are only equal if they have the same parents and children.
+        if((!new HashSet<>(aParents).equals(new HashSet<>(bParents)))
+                || (!new HashSet<>(aChildren).equals(new HashSet<>(bChildren)))){
+            return false;
+        }
+        return true;
+    }
+
+
 }
