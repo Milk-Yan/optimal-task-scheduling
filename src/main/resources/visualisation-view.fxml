@@ -14,9 +14,9 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<HBox style="-fx-background-color: #F8F8F8;" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
+<HBox style="-fx-background-color: #F8F8F8;" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
    <children>
-      <VBox alignment="TOP_CENTER" spacing="10.0" style="-fx-background-color: #e9c4bc;">
+      <VBox alignment="TOP_CENTER" maxHeight="534.0" maxWidth="190.0" spacing="10.0" style="-fx-background-color: #e9c4bc;">
          <children>
             <Region VBox.vgrow="ALWAYS" />
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Notice me Sinnenpai" wrappingWidth="125.52471923828125">

@@ -2,6 +2,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.apache.commons.cli.*;
 import org.graphstream.graph.Graph;
@@ -98,6 +99,7 @@ public class Driver extends Application {
         primaryStage.setTitle("Task Scheduler Visualisation");
         primaryStage.setScene(new Scene(root, 780, 525));
         primaryStage.setResizable(false);
+        primaryStage.getIcons().add(new Image("logo.png"));
         primaryStage.show();
 
         controller.addTask(0,100,260);
