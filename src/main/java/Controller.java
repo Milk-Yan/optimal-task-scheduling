@@ -90,14 +90,16 @@ public class Controller {
         new AnimationTimer() {
             @Override
             public void handle(long now) {
-                long elapsedMillis = System.currentTimeMillis() - startTime ;
-                int seconds = (int) (elapsedMillis / 1000);
-                int minutes = seconds / 60;
+                long elapsedMillis = System.currentTimeMillis() - startTime;
+                int milliseconds = (int) (elapsedMillis % 1000);
+                int seconds = (int) ((elapsedMillis / 1000) % 60);
+                int minutes = (int) ((elapsedMillis / 1000) / 60);
 
-                String secondsString = seconds < 10 ? "0" + seconds : seconds + "";
-                String minutesString = minutes < 10 ? "0" + minutes : minutes + "";
+                String millisecondsString = milliseconds < 100 ? "0" + (milliseconds < 10 ? "0" : milliseconds) : String.valueOf(milliseconds);
+                String secondsString = (seconds < 10 ? "0" + seconds : seconds) + ".";
+                String minutesString = minutes == 0 ? "" : (minutes < 10 ? "0" + minutes : minutes) + ":";
 
-                timerLabel.setText(minutesString + ":" + secondsString);
+                timerLabel.setText(minutesString + secondsString + millisecondsString);
             }
         }.start();
     }
