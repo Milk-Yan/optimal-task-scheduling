@@ -436,10 +436,8 @@ public class Solution {
         if(taskHasChild) {
             int child = taskGraph.getChildrenList(firstTask).get(0);
             inDegrees[child]++;
-            duplicate.removeLast();
         }
         remainingDuration += taskGraph.getDuration(firstTask);
-        duplicate.add(firstTask);
         taskStartTimes[firstTask] = -1;
     }
 }
