@@ -1,5 +1,4 @@
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class Solution {
     private TaskGraph taskGraph;
@@ -13,11 +12,12 @@ public class Solution {
     private int[] processorFinishTimes; // processorFinishTimes[i] => finishing time of the last task scheduled on processor i
     private int remainingDuration = 0; // total duration of remaining tasks to be scheduled (used for pruning)
 
+    private int[] nodePriorities;
     private int[] bestStartTime; // bestStartTime[i] => start time of task i in best schedule found so far
     private int[] bestScheduledOn; // bestScheduledOn[i] => processor that task i is scheduled on, in best schedule
     private int bestFinishTime; // earliest finishing time of schedules we have searched
 
-    LinkedList<Integer> candidateTasks; // queue of tasks with no unprocessed dependencies
+    HashSet<Integer> seenSchedules = new HashSet<>();
 
     /**
      * Creates an optimal scheduling of tasks on specified number of processors.
@@ -27,9 +27,9 @@ public class Solution {
      * @return optimal schedule found by the run method.
      */
     public Schedule run(TaskGraph taskGraph, int numProcessors, int upperBoundTime) {
-        initialize(taskGraph, numProcessors, upperBoundTime);
-        recursiveSearch();
-
+        LinkedList<Integer> candidateTasks = initialize(taskGraph, numProcessors, upperBoundTime);
+        nodePriorities = maxLengthToExitNode;
+        recursiveSearch(candidateTasks);
         return createOutput();
     }
 
@@ -37,7 +37,7 @@ public class Solution {
      * Recursively try to schedule a task on a processor.
      * Uses DFS to try all possible schedules.
      */
-    private void recursiveSearch() {
+    private void recursiveSearch(LinkedList<Integer> candidateTasks) {
         // Base case is when queue is empty, i.e. all tasks scheduled.
         if (candidateTasks.size() == 0) {
             int finishTime = findMaxInArray(processorFinishTimes);
@@ -54,6 +54,15 @@ public class Solution {
             return;
         }
 
+        // Create a hash code for our partial schedule to check whether we have examined an equivalent schedule before
+        // If we have seen an equivalent schedule we do not need to proceed
+        int hashCode = PartialSchedule.generateHashCode(startTimes, scheduledOn, numProcessors);
+        if(seenSchedules.contains(hashCode)){
+            return;
+        } else {
+            seenSchedules.add(hashCode);
+        }
+
         // Information we need about the current schedule
         // minimal remaining time IF all remaining tasks are evenly distributed amongst processors.
         int loadBalancedRemainingTime = (int)Math.ceil(remainingDuration/(double)numProcessors);
@@ -67,6 +76,7 @@ public class Solution {
 
 
         // Iterate through tasks
+        candidateTasks.sort(Comparator.comparingInt(a -> nodePriorities[a]));
         for (int i = 0; i < candidateTasks.size(); i++) {
             int candidateTask = candidateTasks.remove();
 
@@ -93,7 +103,6 @@ public class Solution {
             int maxDataArrival = 0;
             int processorCausingMaxDataArrival = 0;
             int secondMaxDataArrival = 0;
-
             List<Integer> parents = taskGraph.getParentsList(candidateTask);
             for(int parent : parents){
                 int dataArrival = startTimes[parent] + taskGraph.getDuration(parent) + taskGraph.getCommCost(parent, candidateTask);
@@ -112,9 +121,10 @@ public class Solution {
             }
 
 
-            // Iterate through processors
+            // Deep copy of candidateList is used in next recursive iteration
+            LinkedList<Integer> nextCandidateList = new LinkedList<Integer>(candidateTasks);
             boolean hasBeenScheduledAtStart = false;
-            for (int candidateProcessor = 0; candidateProcessor < numProcessors; candidateProcessor++) {
+            for (int candidateProcessor = 0; candidateProcessor < numProcessors; candidateProcessor++) { // Iterate through processors
                 // Avoid processor isomorphism
                 if (processorFinishTimes[candidateProcessor] == 0) {
                     if (hasBeenScheduledAtStart) {
@@ -145,7 +155,7 @@ public class Solution {
                 scheduledOn[candidateTask] = candidateProcessor;
                 startTimes[candidateTask] = earliestStartTimeOnCurrentProcessor;
 
-                recursiveSearch();
+                recursiveSearch(nextCandidateList);
 
                 // Backtrack state (Location 2: Processors)
                 processorFinishTimes[candidateProcessor] = prevFinishTime;
@@ -161,13 +171,14 @@ public class Solution {
             }
             remainingDuration += taskGraph.getDuration(candidateTask);
             candidateTasks.add(candidateTask);
+            startTimes[candidateTask] = -1;
         }
     }
 
     /**
      * Helper method to initialize all the fields required for the solution.
      */
-    private void initialize(TaskGraph taskGraph, int numProcessors, int upperBoundTime) {
+    private LinkedList<Integer> initialize(TaskGraph taskGraph, int numProcessors, int upperBoundTime) {
         this.taskGraph = taskGraph;
         this.numProcessors = numProcessors;
 
@@ -180,8 +191,9 @@ public class Solution {
         bestScheduledOn = new int[numTasks];
         processorFinishTimes = new int[numProcessors];
         startTimes = new int[numTasks];
+        Arrays.fill(startTimes, -1);
         scheduledOn = new int[numTasks];
-        candidateTasks = new LinkedList<>();
+        LinkedList<Integer> candidateTasks = new LinkedList<>();
 
         for (int i = 0; i < numTasks; i++) {
             // calculate remaining duration of tasks to be scheduled
@@ -191,6 +203,8 @@ public class Solution {
                 candidateTasks.add(i);
             }
         }
+        return candidateTasks;
+
     }
 
     /**
