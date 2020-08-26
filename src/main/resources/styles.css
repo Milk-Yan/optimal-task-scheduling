@@ -11,3 +11,23 @@
 .axis {
     -fx-font-size: 13pt;
 }
+
+.container {
+	-fx-background-color:  white;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+    -fx-effect: dropshadow(two-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
+    -fx-alignment: CENTER;
+}
+
+.chart-plot-background {
+    -fx-background-color: white;
+}
+
+.chart-vertical-grid-lines {
+    visibility: false;
+}
+
+.chart-horizontal-grid-lines {
+    -fx-stroke: #DDD;
+}

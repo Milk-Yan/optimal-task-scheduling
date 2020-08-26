@@ -15,14 +15,21 @@ import java.util.Stack;
 
 public class Controller {
     @FXML
-    private Pane taskChartContainer;
+    private Label inputGraphLabel;
+    @FXML
+    private Label totalTasksLabel;
+    @FXML
+    private Label threadCountLabel;
+    @FXML
+    private Label taskScheduledLabel;
+    @FXML
+    private Label currentBestLabel;
     @FXML
     private Label stateCountLabel;
     @FXML
-    private Label bestFinishTimeLabel;
-    @FXML
     private Label timerLabel;
 
+    @FXML
     private StackedBarChart stackedBarChart;
     private CategoryAxis xAxis;
 
@@ -72,19 +79,13 @@ public class Controller {
     }
 
     public void setBestFinishTime(int bestFinishTime) {
-        bestFinishTimeLabel.setText(String.valueOf(bestFinishTime));
+        currentBestLabel.setText(String.valueOf(bestFinishTime));
     }
 
     @FXML
     private void initialize() {
-        xAxis = new CategoryAxis();
-
-        NumberAxis yAxis = new NumberAxis();
-
-        stackedBarChart = new StackedBarChart(xAxis, yAxis);
+        xAxis = (CategoryAxis) stackedBarChart.getXAxis();
         stackedBarChart.setLegendVisible(false);
-
-        taskChartContainer.getChildren().add(stackedBarChart);
 
         long startTime = System.currentTimeMillis();
         new AnimationTimer() {
@@ -95,7 +96,7 @@ public class Controller {
                 int seconds = (int) ((elapsedMillis / 1000) % 60);
                 int minutes = (int) ((elapsedMillis / 1000) / 60);
 
-                String millisecondsString = milliseconds < 100 ? "0" + (milliseconds < 10 ? "0" : milliseconds) : String.valueOf(milliseconds);
+                String millisecondsString = milliseconds < 100 ? "0" + (milliseconds < 10 ? "0" + (milliseconds == 0 ? "0" : milliseconds) : milliseconds) : String.valueOf(milliseconds);
                 String secondsString = (seconds < 10 ? "0" + seconds : seconds) + ".";
                 String minutesString = minutes == 0 ? "" : (minutes < 10 ? "0" + minutes : minutes) + ":";
 
