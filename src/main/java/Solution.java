@@ -67,7 +67,8 @@ public class Solution {
         // Find if we can complete the tasks in Fixed Task Order (FTO)
         LinkedList<Integer> ftoSorted = toFTOList(new LinkedList<>(candidateTasks));
         if (ftoSorted != null) {
-
+            getFTOSchedule(candidateTasks);
+            return;
         }
 
         // Information we need about the current schedule
@@ -328,5 +329,63 @@ public class Solution {
         }
 
         candidateTasks.sort(Comparator.comparingInt(a -> dataReadyTimes[a]));
+    }
+
+    public void getFTOSchedule(LinkedList<Integer> ftoSortedList) {
+        //base case
+        if(ftoSortedList.isEmpty()){
+            int finishTime = findMaxInArray(processorFinishTimes);
+
+            //If schedule time is better, update bestFinishTime and best schedule
+            if (finishTime < bestFinishTime) {
+                bestFinishTime = finishTime;
+
+                for (int i = 0; i < bestStartTime.length; i++) {
+                    bestScheduledOn[i] = scheduledOn[i];
+                    bestStartTime[i] = taskStartTimes[i];
+                }
+            }
+            return;
+        }
+
+        int firstTask = ftoSortedList.poll();
+        LinkedList<Integer> duplicate = new LinkedList<>(ftoSortedList);
+        remainingDuration -= taskGraph.getDuration(firstTask);
+        boolean taskHasChild = !taskGraph.getChildrenList(firstTask).isEmpty();
+        if (taskHasChild) {
+            int child = taskGraph.getChildrenList(firstTask).get(0);
+            inDegrees[child]--;
+            if (inDegrees[child] == 0) {
+                duplicate.add(child);
+            }
+        }
+
+        // since we have a FTO, we can schedule the first task on all processors.
+        for (int i = 0; i < numProcessors; i++) {
+            //find the min start time on this processor
+            int earliestStartTimeOnCurrentProcessor = 0;
+            if(!taskGraph.getParentsList(firstTask).isEmpty()){
+                int parent = taskGraph.getParentsList(firstTask).get(0);
+                earliestStartTimeOnCurrentProcessor = taskStartTimes[parent] + taskGraph.getDuration(parent)
+                        + taskGraph.getCommCost(parent, firstTask);
+            }
+
+            earliestStartTimeOnCurrentProcessor = Math.max(earliestStartTimeOnCurrentProcessor, processorFinishTimes[i]);
+            int prevFinishTime = processorFinishTimes[firstTask];
+            processorFinishTimes[i] = earliestStartTimeOnCurrentProcessor + taskGraph.getDuration(firstTask);
+            scheduledOn[firstTask] = i;
+            taskStartTimes[firstTask] = earliestStartTimeOnCurrentProcessor;
+            if (taskHasChild) {
+                // it remains a FTO, we don't have to check again
+                getFTOSchedule(duplicate);
+            } else {
+                recursiveSearch(duplicate);
+            }
+
+            processorFinishTimes[i] = prevFinishTime;
+        }
+
+        taskStartTimes[firstTask] = -1;
+        remainingDuration += taskGraph.getDuration(firstTask);
     }
 }
