@@ -100,6 +100,7 @@ public class Solution {
         for (int i = 0; i < candidateTasks.size(); i++) {
             int candidateTask = candidateTasks.remove();
             if(seenTasks.contains(candidateTask)){
+                candidateTasks.add(candidateTask);
                 continue;
             } else {
                 ArrayList<Integer> equivalentNodes = equivalentNodesList[candidateTask];
