@@ -81,6 +81,14 @@ public class Solution {
             latestProcessorFinishTime = Math.max(processorFinishTimes[l], latestProcessorFinishTime);
         }
 
+        int longestCriticalPath = 0;
+        for(int task : candidateTasks){
+            int criticalPath = maxLengthToExitNode[task];
+            if (criticalPath > longestCriticalPath){
+                longestCriticalPath = criticalPath;
+            }
+        }
+
 
         // Iterate through tasks
         candidateTasks.sort(Comparator.comparingInt(a -> nodePriorities[a]));
@@ -89,7 +97,7 @@ public class Solution {
 
             // Exit conditions 1
             boolean loadBalancingConstraint = earliestProcessorFinishTime + loadBalancedRemainingTime >= bestFinishTime;
-            boolean criticalPathConstraint = earliestProcessorFinishTime + maxLengthToExitNode[candidateTask] >= bestFinishTime;
+            boolean criticalPathConstraint = earliestProcessorFinishTime + longestCriticalPath >= bestFinishTime;
             boolean latestFinishTimeConstraint = latestProcessorFinishTime >= bestFinishTime;
             if (loadBalancingConstraint || criticalPathConstraint || latestFinishTimeConstraint) {
                 candidateTasks.add(candidateTask);
