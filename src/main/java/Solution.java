@@ -376,8 +376,8 @@ public class Solution {
         }
 
         //Update the state: Location 1
-        int firstTask = ftoSortedList.poll();
         LinkedList<Integer> duplicate = new LinkedList<>(ftoSortedList);
+        int firstTask = duplicate.poll();
         remainingDuration -= taskGraph.getDuration(firstTask);
 
         boolean taskHasChild = !taskGraph.getChildrenList(firstTask).isEmpty();
