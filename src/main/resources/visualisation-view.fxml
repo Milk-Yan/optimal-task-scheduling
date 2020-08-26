@@ -96,7 +96,7 @@
                         <Font size="28.0" />
                      </font>
                   </Text>
-                  <Text fill="#c71606" strokeType="OUTSIDE" strokeWidth="0.0" text="RUNNING">
+                  <Text fx:id="statusLabel" fill="#c71606" strokeType="OUTSIDE" strokeWidth="0.0" text="RUNNING">
                      <font>
                         <Font size="28.0" />
                      </font>

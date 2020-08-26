@@ -28,6 +28,8 @@ public class Controller {
     private Label stateCountLabel;
     @FXML
     private Label timerLabel;
+    @FXML
+    private Label statusLabel;
 
     @FXML
     private StackedBarChart stackedBarChart;
