@@ -38,7 +38,31 @@ public class Controller {
     private Stack<Integer> lastProcessor;
     private Stack<Integer>[] processorFinishTimes;
 
-    public void setUpArgs(int numProcessors) {
+    @FXML
+    private void initialize() {
+        xAxis = (CategoryAxis) stackedBarChart.getXAxis();
+        stackedBarChart.setLegendVisible(false);
+
+        long startTime = System.currentTimeMillis();
+        new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                long elapsedMillis = System.currentTimeMillis() - startTime;
+                int milliseconds = (int) (elapsedMillis % 1000);
+                int seconds = (int) ((elapsedMillis / 1000) % 60);
+                int minutes = (int) ((elapsedMillis / 1000) / 60);
+
+                String millisecondsString = milliseconds < 100 ? "0" + (milliseconds < 10 ? "0" + (milliseconds == 0 ? "0" : milliseconds) : milliseconds) : String.valueOf(milliseconds);
+                String secondsString = (seconds < 10 ? "0" + seconds : seconds) + ".";
+                String minutesString = minutes == 0 ? "" : (minutes < 10 ? "0" + minutes : minutes) + ":";
+
+                timerLabel.setText(minutesString + secondsString + millisecondsString);
+            }
+        }.start();
+    }
+
+    public void setUpArgs(int numProcessors, String inputGraphName, int numTasks, int numThreads) {
+
         processorFinishTimes = new Stack[numProcessors];
         for (int i = 0; i < numProcessors; i++) {
             processorFinishTimes[i] = new Stack<>();
@@ -82,28 +106,5 @@ public class Controller {
 
     public void setBestFinishTime(int bestFinishTime) {
         currentBestLabel.setText(String.valueOf(bestFinishTime));
-    }
-
-    @FXML
-    private void initialize() {
-        xAxis = (CategoryAxis) stackedBarChart.getXAxis();
-        stackedBarChart.setLegendVisible(false);
-
-        long startTime = System.currentTimeMillis();
-        new AnimationTimer() {
-            @Override
-            public void handle(long now) {
-                long elapsedMillis = System.currentTimeMillis() - startTime;
-                int milliseconds = (int) (elapsedMillis % 1000);
-                int seconds = (int) ((elapsedMillis / 1000) % 60);
-                int minutes = (int) ((elapsedMillis / 1000) / 60);
-
-                String millisecondsString = milliseconds < 100 ? "0" + (milliseconds < 10 ? "0" + (milliseconds == 0 ? "0" : milliseconds) : milliseconds) : String.valueOf(milliseconds);
-                String secondsString = (seconds < 10 ? "0" + seconds : seconds) + ".";
-                String minutesString = minutes == 0 ? "" : (minutes < 10 ? "0" + minutes : minutes) + ":";
-
-                timerLabel.setText(minutesString + secondsString + millisecondsString);
-            }
-        }.start();
     }
 }
