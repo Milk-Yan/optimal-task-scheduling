@@ -1,3 +1,5 @@
+import org.graphstream.graph.Graph;
+
 import java.util.List;
 
 public class IOTester {
@@ -9,7 +11,8 @@ public class IOTester {
     public static void main(String[] args){
 
         //Requires there to be a file called input.dot in the same dir
-        TaskGraph taskGraph = IOParser.read("./input.dot");
+        Graph dotGraph = IOParser.read("./input.dot");
+        TaskGraph taskGraph = new TaskGraph(dotGraph);
         int numTasks = taskGraph.getNumberOfTasks();
 
         //Testing if the in degrees of each node which has a parent are correct.
@@ -59,6 +62,6 @@ public class IOTester {
         };
 
         //The parser will write to the input file. Check the output file to ensure correctness.
-        IOParser.write("./output.dot", taskGraph, tasks);
+        IOParser.write("./output.dot", dotGraph, tasks);
     }
 }

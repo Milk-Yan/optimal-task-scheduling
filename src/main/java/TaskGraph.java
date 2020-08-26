@@ -8,7 +8,6 @@ import java.util.List;
  * The TaskGraph class encapsulates tasks and their dependencies.
  */
 public class TaskGraph {
-    private Graph dotGraph;
     private int numberOfTasks;
 
     private List<Integer>[] parentsList;
@@ -21,7 +20,6 @@ public class TaskGraph {
      * @param dotGraph The original dot file data parsed by GraphStream.
      */
     public TaskGraph(Graph dotGraph){
-        this.dotGraph = dotGraph;
         numberOfTasks = dotGraph.getNodeCount();
         initializeDataStructures(numberOfTasks);
 
@@ -68,12 +66,6 @@ public class TaskGraph {
         }
     }
 
-    /**
-     * @return reference to the original dot file data parsed by GraphStream.
-     */
-    public Graph getDotGraph() {
-        return dotGraph;
-    }
 
     /**
      * @return the number of tasks in the task graph.
