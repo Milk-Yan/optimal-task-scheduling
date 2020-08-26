@@ -40,7 +40,7 @@ public class Solution {
      */
     private void recursiveSearch(LinkedList<Integer> candidateTasks) {
         // Base case is when queue is empty, i.e. all tasks scheduled.
-        if (candidateTasks.size() == 0) {
+        if (candidateTasks.isEmpty()) {
             int finishTime = findMaxInArray(processorFinishTimes);
 
             //If schedule time is better, update bestFinishTime and best schedule
@@ -262,12 +262,12 @@ public class Solution {
         int parentProcessor = -1;
 
         for (int task : candidateTasks) {
-            // to be FTO, every node must have at most one parent and at most one child.
+            // To be an FTO, every node must have at most one parent and at most one child
             if (taskGraph.getParentsList(task).size() > 1 || taskGraph.getChildrenList(task).size() > 1) {
                 return null;
             }
 
-            // every node must have the same child IF they have a child.
+            // Every node must have the same child IF they have a child
             if (taskGraph.getChildrenList(task).size() > 0) {
                 int taskChild = taskGraph.getChildrenList(task).get(0);
                 if (child == -1) {
@@ -294,7 +294,7 @@ public class Solution {
 
         // verify if the candidate tasks are ordered by out edge cost in non-increasing order,
         // if not we do not have a FTO.
-        int prevOutEdgeCost = -1;
+        int prevOutEdgeCost = Integer.MAX_VALUE;
         for (int task: candidateTasks) {
             int edgeCost;
             if (taskGraph.getChildrenList(task).isEmpty()) {
@@ -332,11 +332,11 @@ public class Solution {
     }
 
     public void getFTOSchedule(LinkedList<Integer> ftoSortedList) {
-        //base case
+        // Base case
         if(ftoSortedList.isEmpty()){
             int finishTime = findMaxInArray(processorFinishTimes);
 
-            //If schedule time is better, update bestFinishTime and best schedule
+            // If schedule time is better, update bestFinishTime and best schedule
             if (finishTime < bestFinishTime) {
                 bestFinishTime = finishTime;
 
@@ -348,43 +348,92 @@ public class Solution {
             return;
         }
 
+        //Update the state: Location 1
         int firstTask = ftoSortedList.poll();
         LinkedList<Integer> duplicate = new LinkedList<>(ftoSortedList);
         remainingDuration -= taskGraph.getDuration(firstTask);
+
         boolean taskHasChild = !taskGraph.getChildrenList(firstTask).isEmpty();
         if (taskHasChild) {
             int child = taskGraph.getChildrenList(firstTask).get(0);
             inDegrees[child]--;
-            if (inDegrees[child] == 0) {
-                duplicate.add(child);
+            duplicate.add(child);
+        }
+
+        // Information we need about the current schedule
+        // minimal remaining time IF all remaining tasks are evenly distributed amongst processors.
+        int loadBalancedRemainingTime = (int) Math.ceil(remainingDuration / (double) numProcessors);
+
+        int earliestProcessorFinishTime = Integer.MAX_VALUE;
+        int latestProcessorFinishTime = 0;
+        for (int l = 0; l < numProcessors; l++) {
+            earliestProcessorFinishTime = Math.min(processorFinishTimes[l], earliestProcessorFinishTime);
+            latestProcessorFinishTime = Math.max(processorFinishTimes[l], latestProcessorFinishTime);
+        }
+
+        int longestCriticalPath = 0;
+        for(int task : ftoSortedList){
+            int criticalPath = maxLengthToExitNode[task];
+            if (criticalPath > longestCriticalPath){
+                longestCriticalPath = criticalPath;
             }
         }
 
+        // Exit conditions 1
+        boolean loadBalancingConstraint = earliestProcessorFinishTime + loadBalancedRemainingTime >= bestFinishTime;
+        boolean criticalPathConstraint = earliestProcessorFinishTime + longestCriticalPath >= bestFinishTime;
+        boolean latestFinishTimeConstraint = latestProcessorFinishTime >= bestFinishTime;
+        if (loadBalancingConstraint || criticalPathConstraint || latestFinishTimeConstraint) {
+            return;
+        }
+
         // since we have a FTO, we can schedule the first task on all processors.
-        for (int i = 0; i < numProcessors; i++) {
-            //find the min start time on this processor
-            int earliestStartTimeOnCurrentProcessor = 0;
-            if(!taskGraph.getParentsList(firstTask).isEmpty()){
-                int parent = taskGraph.getParentsList(firstTask).get(0);
-                earliestStartTimeOnCurrentProcessor = taskStartTimes[parent] + taskGraph.getDuration(parent)
-                        + taskGraph.getCommCost(parent, firstTask);
+        boolean hasBeenScheduledAtStart = false;
+        for (int candidateProcessor = 0; candidateProcessor < numProcessors; candidateProcessor++) {
+            // Avoid processor isomorphism
+            if (processorFinishTimes[candidateProcessor] == 0) {
+                if (hasBeenScheduledAtStart) {
+                    // Skip duplicated search space
+                    continue;
+                } else {
+                    hasBeenScheduledAtStart = true;
+                }
             }
 
-            earliestStartTimeOnCurrentProcessor = Math.max(earliestStartTimeOnCurrentProcessor, processorFinishTimes[i]);
-            int prevFinishTime = processorFinishTimes[firstTask];
-            processorFinishTimes[i] = earliestStartTimeOnCurrentProcessor + taskGraph.getDuration(firstTask);
-            scheduledOn[firstTask] = i;
+            // Find the min start time on this processor
+            int earliestStartTimeOnCurrentProcessor = processorFinishTimes[candidateProcessor];
+            if(!taskGraph.getParentsList(firstTask).isEmpty()){
+                int parent = taskGraph.getParentsList(firstTask).get(0);
+                earliestStartTimeOnCurrentProcessor = Math.max(earliestStartTimeOnCurrentProcessor, taskStartTimes[parent] + taskGraph.getDuration(parent)
+                        + taskGraph.getCommCost(parent, firstTask));
+            }
+
+            // Exit conditions 2: tighter constraint now that we have selected the processor
+            criticalPathConstraint = earliestStartTimeOnCurrentProcessor + maxLengthToExitNode[firstTask] >= bestFinishTime;
+            if (criticalPathConstraint) {
+                continue;
+            }
+
+            // Update the state: Location 2
+            int prevFinishTime = processorFinishTimes[candidateProcessor];
+            processorFinishTimes[candidateProcessor] = earliestStartTimeOnCurrentProcessor + taskGraph.getDuration(firstTask);
+            scheduledOn[firstTask] = candidateProcessor;
             taskStartTimes[firstTask] = earliestStartTimeOnCurrentProcessor;
-            if (taskHasChild) {
+
+            if (!taskHasChild) {
                 // it remains a FTO, we don't have to check again
                 getFTOSchedule(duplicate);
             } else {
                 recursiveSearch(duplicate);
             }
 
-            processorFinishTimes[i] = prevFinishTime;
+            // Backtrack: Location 2
+            processorFinishTimes[candidateProcessor] = prevFinishTime;
         }
 
+        // Backtrack: Location 2
+        int child = taskGraph.getChildrenList(firstTask).get(0);
+        inDegrees[child]++;
         taskStartTimes[firstTask] = -1;
         remainingDuration += taskGraph.getDuration(firstTask);
     }
