@@ -62,6 +62,9 @@ public class Controller {
     }
 
     public void setUpArgs(int numProcessors, String inputGraphName, int numTasks, int numThreads) {
+        inputGraphLabel.setText(inputGraphName);
+        totalTasksLabel.setText(numTasks + "");
+        threadCountLabel.setText(numThreads + "");
 
         processorFinishTimes = new Stack[numProcessors];
         for (int i = 0; i < numProcessors; i++) {
