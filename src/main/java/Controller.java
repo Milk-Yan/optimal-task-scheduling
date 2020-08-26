@@ -1,14 +1,11 @@
 import javafx.animation.AnimationTimer;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
-import javafx.scene.chart.*;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.StackedBarChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
-import javafx.scene.transform.Rotate;
 
-import javax.xml.soap.Text;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -32,7 +29,7 @@ public class Controller {
     private Label statusLabel;
 
     @FXML
-    private StackedBarChart stackedBarChart;
+    private StackedBarChart<String, Number> stackedBarChart;
     private CategoryAxis xAxis;
 
     private Stack<Integer> lastProcessor;
@@ -77,7 +74,7 @@ public class Controller {
         for (int i = 0; i < numProcessors; i++) {
             xAxisProcessors.add("Processor " + (i + 1));
         }
-        xAxis.setCategories(FXCollections.<String>observableArrayList(xAxisProcessors));
+        xAxis.setCategories(FXCollections.observableArrayList(xAxisProcessors));
     }
 
     public void addTask(int processor, int duration, int startTime) {
@@ -87,11 +84,11 @@ public class Controller {
         processorFinishTimes[processor].push(startTime + duration);
         System.out.println(processorFinishTimes[processor].peek());
 
-        XYChart.Series idle = new XYChart.Series();
-        idle.getData().add(new XYChart.Data("Processor " + (processor + 1), idleTime));
+        XYChart.Series<String, Number> idle = new XYChart.Series<>();
+        idle.getData().add(new XYChart.Data<>("Processor " + (processor + 1), idleTime));
 
-        XYChart.Series task = new XYChart.Series();
-        task.getData().add(new XYChart.Data("Processor " + (processor + 1), duration));
+        XYChart.Series<String, Number> task = new XYChart.Series<>();
+        task.getData().add(new XYChart.Data<>("Processor " + (processor + 1), duration));
 
         stackedBarChart.getData().add(idle);
         stackedBarChart.getData().add(task);
