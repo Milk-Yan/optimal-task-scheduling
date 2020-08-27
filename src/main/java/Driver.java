@@ -7,6 +7,8 @@ import javafx.stage.Stage;
 import org.apache.commons.cli.*;
 import org.graphstream.graph.Graph;
 
+import java.io.IOException;
+
 public class Driver extends Application {
     static int numProcessors;
     static int numThreads = 1;
@@ -20,7 +22,7 @@ public class Driver extends Application {
      * @param args Array of string of inputs, in order: input file name, processor count, [OPTIONAL]: (-p) number of cores,
      *             (-v) visualisation of search, (-o) name of output file
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
         CommandLine cmd = getCommandLineOptions(args);
         fileName = args[0];
         String outputFilePath = cmd.getOptionValue('o', fileName.split("\\.")[0] + "-output.dot");
@@ -39,19 +41,23 @@ public class Driver extends Application {
         }
 
         // Get num threads to run program on
+        Solution solution;
         if(cmd.hasOption("p")){
+            solution = new SolutionParallel();
             try {
                 numThreads = Integer.parseInt(cmd.getOptionValue('p'));
             } catch(NumberFormatException e) {
                 System.err.println("Error: number of threads invalid");
                 System.exit(1);
             }
-            System.err.println("Note: the parallelised version has not been implemented yet, program will run on one thread");
+        } else {
+            solution = new SolutionSequential();
         }
 
         // Read input file
         Graph dotGraph = IOParser.read(fileName);
         taskGraph = new TaskGraph(dotGraph);
+
 
         // Get whether the user wants visualisation
         if(cmd.hasOption('v')){
@@ -72,7 +78,6 @@ public class Driver extends Application {
             greedySchedule = g.run(taskGraph, numProcessors);
 
             // Run algorithm to find optimal schedule
-            Solution solution = new Solution();
             long startTime = System.currentTimeMillis();
             result = solution.run(taskGraph, numProcessors, greedySchedule.getFinishTime());
             System.out.println(System.currentTimeMillis() - startTime);

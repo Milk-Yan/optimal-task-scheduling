@@ -47,7 +47,6 @@ public class IOParser {
      * @param result List of scheduled tasks.
      */
     public static void write(String outputFileName, Graph dotGraph, Task[] result) {
-
         for(int i = 0; i < dotGraph.getNodeCount(); i++){
             Node node = dotGraph.getNode(i);
             Task task = result[i];

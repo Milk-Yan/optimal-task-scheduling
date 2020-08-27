@@ -53,7 +53,7 @@ public class Tester {
 
         int numProcessors = 2;
 
-        Solution solution = new Solution();
+//        Solution solution = new Solution();
         // TODO
         // Fix tests
 //        Task[] result = solution.run(new TaskGraph(inList, outList, durations, commCosts), numProcessors);
