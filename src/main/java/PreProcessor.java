@@ -1,4 +1,5 @@
-import java.util.List;
+import java.lang.reflect.Array;
+import java.util.*;
 
 public class PreProcessor {
 
@@ -33,4 +34,69 @@ public class PreProcessor {
         lengths[node] = maxLength + taskGraph.getDuration(node);
         return lengths[node];
     }
+
+
+    public static ArrayList<Integer>[] getNodeEquivalence(TaskGraph taskGraph){
+        HashSet<Integer> seen = new HashSet<>();
+        int numTasks = taskGraph.getNumberOfTasks();
+        ArrayList<Integer>[] equivalentNodesList = new ArrayList[numTasks];
+
+        for(int i = 0; i<numTasks; i++) {
+            if (!seen.contains(i)) {
+                ArrayList<Integer> equivalentNodes = new ArrayList<>();
+                equivalentNodes.add(i);
+                for (int j = 0; j < numTasks; j++) {
+                    if (j != i && !seen.contains(j)) {
+                        boolean equivalent = compare(i, j, taskGraph);
+                        if (equivalent) {
+                            equivalentNodes.add(j);
+                        }
+                    }
+                }
+                for (int j = 0; j < equivalentNodes.size(); j++) {
+                    equivalentNodesList[equivalentNodes.get(j)] = equivalentNodes;
+                    seen.add(equivalentNodes.get(j));
+                }
+            }
+        }
+        return equivalentNodesList;
+    }
+
+    private static boolean compare(int a, int b, TaskGraph taskGraph){
+        if(taskGraph.getDuration(a) != taskGraph.getDuration(b)) {
+            return false;
+        }
+
+        List<Integer> aParents = taskGraph.getParentsList(a);
+        List<Integer> bParents = taskGraph.getParentsList(b);
+        List<Integer> aChildren = taskGraph.getChildrenList(a);;
+        List<Integer> bChildren = taskGraph.getChildrenList(b);
+
+        // the two tasks are only equal if they have the same parents and children.
+        if((aParents.size() != bParents.size()) || (aChildren.size() != bChildren.size())){
+            return false;
+        }
+        Collections.sort(aParents);
+        Collections.sort(bParents);
+        for(int i = 0; i<aParents.size(); i++){
+            int aParent = aParents.get(i);
+            int bParent = bParents.get(i);
+            if((aParent != bParent) ||taskGraph.getCommCost(aParent, a) != taskGraph.getCommCost(bParent, b)){
+                return false;
+            }
+        }
+        Collections.sort(aChildren);
+        Collections.sort(bChildren);
+        for(int i = 0; i<aChildren.size(); i++){
+            int aChild = aChildren.get(i);
+            int bChild= bChildren.get(i);
+            if( (aChild != bChild) || taskGraph.getCommCost(a, aChild) != taskGraph.getCommCost(b, bChild)){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
 }

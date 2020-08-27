@@ -12,7 +12,9 @@ public class Solution {
     private int[] processorFinishTimes; // processorFinishTimes[i] => finishing time of the last task scheduled on processor i
     private int remainingDuration = 0; // total duration of remaining tasks to be scheduled (used for pruning)
 
-    private int[] nodePriorities;
+    private int[] nodePriorities;   //REFACTORRRRRRRRRRRRRRRRR
+    private ArrayList<Integer>[] equivalentNodesList;  //REFACTORRRRRRRRRRRRRRRRR
+
     private int[] bestStartTime; // bestStartTime[i] => start time of task i in best schedule found so far
     private int[] bestScheduledOn; // bestScheduledOn[i] => processor that task i is scheduled on, in best schedule
     private int bestFinishTime; // earliest finishing time of schedules we have searched
@@ -29,7 +31,8 @@ public class Solution {
      */
     public Schedule run(TaskGraph taskGraph, int numProcessors, int upperBoundTime) {
         LinkedList<Integer> candidateTasks = initialize(taskGraph, numProcessors, upperBoundTime);
-        nodePriorities = maxLengthToExitNode;
+        nodePriorities = maxLengthToExitNode; //REFACTOR;
+        equivalentNodesList = PreProcessor.getNodeEquivalence(taskGraph); //REFACTOR
         recursiveSearch(candidateTasks);
         return createOutput();
     }
@@ -93,8 +96,16 @@ public class Solution {
 
         // Iterate through tasks
         candidateTasks.sort(Comparator.comparingInt(a -> nodePriorities[a]));
+        HashSet<Integer> seenTasks = new HashSet<>();
         for (int i = 0; i < candidateTasks.size(); i++) {
             int candidateTask = candidateTasks.remove();
+            if(seenTasks.contains(candidateTask)){
+                candidateTasks.add(candidateTask);
+                continue;
+            } else {
+                ArrayList<Integer> equivalentNodes = equivalentNodesList[candidateTask];
+                seenTasks.addAll(equivalentNodes);
+            }
 
             // Exit conditions 1
             boolean loadBalancingConstraint = earliestProcessorFinishTime + loadBalancedRemainingTime >= bestFinishTime;
@@ -246,8 +257,8 @@ public class Solution {
      */
     private int findMaxInArray(int[] arr) {
         int max = Integer.MIN_VALUE;
-        for (int i = 0; i < arr.length; i++) {
-            max = Math.max(max, arr[i]);
+        for (int j : arr) {
+            max = Math.max(max, j);
         }
 
         return max;
