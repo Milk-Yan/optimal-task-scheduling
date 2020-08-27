@@ -76,6 +76,19 @@ public class SolutionParallel extends Solution {
                 if (seenSchedules.contains(hashCode)) {
                     return;
                 } else {
+                    // Find if we can complete the tasks in Fixed Task Order (FTO)
+                    LinkedList<Integer> ftoSorted = toFTOList(new LinkedList<>(state.candidateTasks));
+                    if (ftoSorted != null) {
+                        state.candidateTasks = ftoSorted;
+                        try {
+                            getFTOSchedule(ftoSorted);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        return;
+                    }
                     seenSchedules.add(hashCode);
                 }
             }
@@ -214,6 +227,250 @@ public class SolutionParallel extends Solution {
                 state.taskStartTimes[candidateTask] = -1;
                 ForkJoinTask.invokeAll(executableList);
             }
+        }
+
+        /**
+         * @param candidateTasks
+         * @return
+         */
+        private LinkedList<Integer> toFTOList(LinkedList<Integer> candidateTasks) {
+            int child = -1;
+            int parentProcessor = -1;
+
+            for (int task : candidateTasks) {
+                // To be an FTO, every node must have at most one parent and at most one child
+                if (taskGraph.getParentsList(task).size() > 1 || taskGraph.getChildrenList(task).size() > 1) {
+                    return null;
+                }
+
+                // Every node must have the same child IF they have a child
+                if (taskGraph.getChildrenList(task).size() > 0) {
+                    int taskChild = taskGraph.getChildrenList(task).get(0);
+                    if (child == -1) {
+                        child = taskChild;
+                    } else if (child != taskChild) {
+                        return null;
+                    }
+                }
+
+                // every node must have their parents on the same processor IF they have a parent.
+                if (taskGraph.getParentsList(task).size() > 0) {
+                    int taskParent = taskGraph.getParentsList(task).get(0);
+                    int taskParentProcessor = state.scheduledOn[taskParent];
+                    if (parentProcessor == -1) {
+                        parentProcessor = taskParentProcessor;
+                    } else if (parentProcessor != taskParentProcessor) {
+                        return null;
+                    }
+                }
+            }
+
+            // sort by non-decreasing data ready time, i.e. finish time of parent + weight of edge
+            sortByDataReadyTime(candidateTasks);
+
+            // verify if the candidate tasks are ordered by out edge cost in non-increasing order,
+            // if not we do not have a FTO.
+            int prevOutEdgeCost = Integer.MAX_VALUE;
+            for (int task : candidateTasks) {
+                int edgeCost;
+                if (taskGraph.getChildrenList(task).isEmpty()) {
+                    // there is no out edge, cost is 0
+                    edgeCost = 0;
+                } else {
+                    int taskChild = taskGraph.getChildrenList(task).get(0);
+                    edgeCost = taskGraph.getCommCost(task, taskChild);
+                }
+
+                // if our current edge is larger than the previous edge, we don't have a FTO.
+                if (edgeCost > prevOutEdgeCost) {
+                    return null;
+                } else {
+                    prevOutEdgeCost = edgeCost;
+                }
+            }
+
+            // we have a FTO!
+            return candidateTasks;
+        }
+
+        private void getFTOSchedule(LinkedList<Integer> ftoSortedList) throws IOException, ClassNotFoundException {
+            // Base case
+            if (ftoSortedList.isEmpty()) {
+                int finishTime = findMaxInArray(state.processorFinishTimes);
+
+                // If schedule time is better, update bestFinishTime and best schedule
+                if (finishTime < bestFinishTime) {
+                    bestFinishTime = finishTime;
+
+                    for (int i = 0; i < bestStartTime.length; i++) {
+                        bestScheduledOn[i] = state.scheduledOn[i];
+                        bestStartTime[i] = state.taskStartTimes[i];
+                    }
+                }
+                return;
+            }
+
+            // Create a hash code for our partial schedule to check whether we have examined an equivalent schedule before
+            // If we have seen an equivalent schedule we do not need to proceed
+            int hashCode = PartialSchedule.generateHashCode(state.taskStartTimes, state.scheduledOn, numProcessors);
+            if (seenSchedules.contains(hashCode)) {
+                return;
+            } else {
+                seenSchedules.add(hashCode);
+            }
+
+            // Information we need about the current schedule
+            // minimal remaining time IF all remaining tasks are evenly distributed amongst processors.
+            int loadBalancedRemainingTime = (int) Math.ceil(state.remainingDuration / (double) numProcessors);
+
+            int earliestProcessorFinishTime = Integer.MAX_VALUE;
+            int latestProcessorFinishTime = 0;
+            for (int l = 0; l < numProcessors; l++) {
+                earliestProcessorFinishTime = Math.min(state.processorFinishTimes[l], earliestProcessorFinishTime);
+                latestProcessorFinishTime = Math.max(state.processorFinishTimes[l], latestProcessorFinishTime);
+            }
+
+            int longestCriticalPath = 0;
+            for (int task : ftoSortedList) {
+                int criticalPath = maxLengthToExitNode[task];
+                if (criticalPath > longestCriticalPath) {
+                    longestCriticalPath = criticalPath;
+                }
+            }
+
+            // Exit conditions 1
+            boolean loadBalancingConstraint = earliestProcessorFinishTime + loadBalancedRemainingTime >= bestFinishTime;
+            boolean criticalPathConstraint = earliestProcessorFinishTime + longestCriticalPath >= bestFinishTime;
+            boolean latestFinishTimeConstraint = latestProcessorFinishTime >= bestFinishTime;
+            if (loadBalancingConstraint || criticalPathConstraint || latestFinishTimeConstraint) {
+                return;
+            }
+
+            //Update the state: Location 1
+            LinkedList<Integer> duplicateCandidateTasks = new LinkedList<>(ftoSortedList);
+            int firstTask = duplicateCandidateTasks.poll();
+            state.remainingDuration -= taskGraph.getDuration(firstTask);
+
+
+            boolean taskChildAdded = false;
+            if (!taskGraph.getChildrenList(firstTask).isEmpty()) {
+                int child = taskGraph.getChildrenList(firstTask).get(0);
+                state.inDegrees[child]--;
+                if (state.inDegrees[child] == 0) {
+                    duplicateCandidateTasks.add(child);
+                    taskChildAdded = true;
+                }
+            }
+
+            // since we have a FTO, we can schedule the first task on all processors.
+            boolean hasBeenScheduledAtStart = false;
+
+            List<RecursiveSearch> executableList = new ArrayList<>();
+
+            for (int candidateProcessor = 0; candidateProcessor < numProcessors; candidateProcessor++) {
+                // Avoid processor isomorphism
+                if (state.processorFinishTimes[candidateProcessor] == 0) {
+                    if (hasBeenScheduledAtStart) {
+                        // Skip duplicated search space
+                        continue;
+                    } else {
+                        hasBeenScheduledAtStart = true;
+                    }
+                }
+
+                // Find the min start time on this processor
+                int earliestStartTimeOnCurrentProcessor = state.processorFinishTimes[candidateProcessor];
+                if (!taskGraph.getParentsList(firstTask).isEmpty()) {
+                    int parent = taskGraph.getParentsList(firstTask).get(0);
+                    if (state.scheduledOn[parent] == candidateProcessor) {
+                        earliestStartTimeOnCurrentProcessor = Math.max(earliestStartTimeOnCurrentProcessor, state.taskStartTimes[parent]
+                                + taskGraph.getDuration(parent));
+                    } else {
+                        earliestStartTimeOnCurrentProcessor = Math.max(earliestStartTimeOnCurrentProcessor, state.taskStartTimes[parent]
+                                + taskGraph.getDuration(parent) + taskGraph.getCommCost(parent, firstTask));
+                    }
+                }
+
+                // Exit conditions 2: tighter constraint now that we have selected the processor
+                criticalPathConstraint = earliestStartTimeOnCurrentProcessor + maxLengthToExitNode[firstTask] >= bestFinishTime;
+                if (criticalPathConstraint) {
+                    continue;
+                }
+
+                // Update the state: Location 2
+                int prevFinishTime = state.processorFinishTimes[candidateProcessor];
+                state.processorFinishTimes[candidateProcessor] = earliestStartTimeOnCurrentProcessor + taskGraph.getDuration(firstTask);
+                state.scheduledOn[firstTask] = candidateProcessor;
+                state.taskStartTimes[firstTask] = earliestStartTimeOnCurrentProcessor;
+
+                if (!taskChildAdded) {
+                    // it remains a FTO, we don't have to check again
+                    getFTOSchedule(duplicateCandidateTasks);
+                } else {
+                    State duplicateState = state.getDeepCopy();
+                    duplicateState.candidateTasks = duplicateCandidateTasks;
+                    executableList.add(new RecursiveSearch(duplicateState));
+                }
+
+                // Backtrack: Location 2
+                state.processorFinishTimes[candidateProcessor] = prevFinishTime;
+            }
+            // Backtrack: Location 1
+            if(!taskGraph.getChildrenList(firstTask).isEmpty()) {
+                int child = taskGraph.getChildrenList(firstTask).get(0);
+                state.inDegrees[child]++;
+            }
+            state.remainingDuration += taskGraph.getDuration(firstTask);
+            state.taskStartTimes[firstTask] = -1;
+
+            ForkJoinTask.invokeAll(executableList);
+        }
+
+        private void sortByDataReadyTime(List<Integer> candidateTasks) {
+            candidateTasks.sort((task1, task2) -> {
+                int task1DataReadyTime = 0;
+                int task2DataReadyTime = 0;
+
+                if (!taskGraph.getParentsList(task1).isEmpty()) {
+                    int parent = taskGraph.getParentsList(task1).get(0);
+                    int commCost = taskGraph.getCommCost(parent, task1);
+                    task1DataReadyTime = state.taskStartTimes[parent] + taskGraph.getDuration(parent) + commCost;
+                }
+
+                if (!taskGraph.getParentsList(task2).isEmpty()) {
+                    int parent = taskGraph.getParentsList(task2).get(0);
+                    int commCost = taskGraph.getCommCost(parent, task2);
+                    task2DataReadyTime = state.taskStartTimes[parent] + taskGraph.getDuration(parent) + commCost;
+                }
+
+                if (task1DataReadyTime < task2DataReadyTime) {
+                    return -1;
+                }
+                if (task1DataReadyTime > task2DataReadyTime) {
+                    return 1;
+                }
+
+                // Data ready times are equal, break the tie using the out-edge cost
+                int task1OutEdgeCost = 0;
+                int task2OutEdgeCost = 0;
+                if (!taskGraph.getChildrenList(task1).isEmpty()) {
+                    int child = taskGraph.getChildrenList(task1).get(0);
+                    task1OutEdgeCost = taskGraph.getCommCost(task1, child);
+                }
+                if (!taskGraph.getChildrenList(task2).isEmpty()) {
+                    int child = taskGraph.getChildrenList(task2).get(0);
+                    task2OutEdgeCost = taskGraph.getCommCost(task2, child);
+                }
+
+                if (task1OutEdgeCost > task2OutEdgeCost) {
+                    return -1;
+                }
+                if (task1OutEdgeCost < task2OutEdgeCost) {
+                    return 1;
+                }
+                //Data ready times and out-edge costs are equal
+                return 0;
+            });
         }
     }
 

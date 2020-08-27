@@ -268,7 +268,7 @@ public class SolutionSequential extends Solution {
      * @param candidateTasks
      * @return
      */
-    public LinkedList<Integer> toFTOList(LinkedList<Integer> candidateTasks) {
+    private LinkedList<Integer> toFTOList(LinkedList<Integer> candidateTasks) {
         int child = -1;
         int parentProcessor = -1;
 
@@ -376,7 +376,7 @@ public class SolutionSequential extends Solution {
         });
     }
 
-    public void getFTOSchedule(LinkedList<Integer> ftoSortedList) {
+    private void getFTOSchedule(LinkedList<Integer> ftoSortedList) {
         // Base case
         if (ftoSortedList.isEmpty()) {
             int finishTime = findMaxInArray(processorFinishTimes);
