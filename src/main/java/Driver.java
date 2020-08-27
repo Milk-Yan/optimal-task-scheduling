@@ -58,19 +58,31 @@ public class Driver extends Application {
             launch(args);
         }
 
-        // Run greedy algorithm to determine lower bound of optimal solution
-        Greedy g = new Greedy();
-        Schedule greedySchedule = g.run(taskGraph, numProcessors);
+        Schedule result;
+        Schedule greedySchedule = null;
 
-        // Run algorithm to find optimal schedule
-        Solution solution = new Solution();
-        long startTime = System.currentTimeMillis();
-        Schedule result = solution.run(taskGraph, numProcessors, greedySchedule.getFinishTime());
-        System.out.println(System.currentTimeMillis() - startTime);
+        // if the number of processors is one, then the optimal solution is just everything run
+        // sequentially.
+        if (numProcessors == 1) {
+            SequentialScheduler scheduler = new SequentialScheduler(taskGraph);
+            result = scheduler.getSchedule();
+        } else {
+            // Run greedy algorithm to determine lower bound of optimal solution
+            Greedy g = new Greedy();
+            greedySchedule = g.run(taskGraph, numProcessors);
+
+            // Run algorithm to find optimal schedule
+            Solution solution = new Solution();
+            long startTime = System.currentTimeMillis();
+            result = solution.run(taskGraph, numProcessors, greedySchedule.getFinishTime());
+            System.out.println(System.currentTimeMillis() - startTime);
+        }
+
+
 
         // Our solution ignores all schedules that are >= than the greedy schedule,
         // so this is to ensure if nothing is faster, we return the greedy schedule.
-        if (result.getFinishTime() >= greedySchedule.getFinishTime()) {
+        if (greedySchedule != null && result.getFinishTime() >= greedySchedule.getFinishTime()) {
             IOParser.write(outputFilePath, dotGraph, greedySchedule.getTasks());
         } else {
             IOParser.write(outputFilePath, dotGraph, result.getTasks());
