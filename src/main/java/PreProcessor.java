@@ -1,8 +1,5 @@
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class PreProcessor {
 
@@ -76,10 +73,28 @@ public class PreProcessor {
         List<Integer> bChildren = taskGraph.getChildrenList(b);
 
         // the two tasks are only equal if they have the same parents and children.
-        if((!new HashSet<>(aParents).equals(new HashSet<>(bParents)))
-                || (!new HashSet<>(aChildren).equals(new HashSet<>(bChildren)))){
+        if((aParents.size() != bParents.size()) || (aChildren.size() != bChildren.size())){
             return false;
         }
+        Collections.sort(aParents);
+        Collections.sort(bParents);
+        for(int i = 0; i<aParents.size(); i++){
+            int aParent = aParents.get(i);
+            int bParent = bParents.get(i);
+            if((aParent != bParent) ||taskGraph.getCommCost(aParent, a) != taskGraph.getCommCost(bParent, b)){
+                return false;
+            }
+        }
+        Collections.sort(aChildren);
+        Collections.sort(bChildren);
+        for(int i = 0; i<aChildren.size(); i++){
+            int aChild = aChildren.get(i);
+            int bChild= bChildren.get(i);
+            if( (aChild != bChild) || taskGraph.getCommCost(a, aChild) != taskGraph.getCommCost(b, bChild)){
+                return false;
+            }
+        }
+
         return true;
     }
 
