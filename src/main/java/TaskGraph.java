@@ -12,8 +12,8 @@ public class TaskGraph {
 
     private List<Integer>[] parentsList;
     private List<Integer>[] childrenList;
-    private int[][] parentsAdjacencyMatrix;
-    private int[][] childrenAdjacencyMatrix;
+    private boolean[][] parentsAdjacencyMatrix;
+    private boolean[][] childrenAdjacencyMatrix;
     private int[] durations;
     private int[][] commCosts;
 
@@ -36,8 +36,8 @@ public class TaskGraph {
                 parentsList[t].add(s);
                 childrenList[s].add(t);
                 commCosts[s][t] = commCost;
-                parentsAdjacencyMatrix[t][s] = 1;
-                childrenAdjacencyMatrix[s][t] = 1;
+                parentsAdjacencyMatrix[t][s] = true;
+                childrenAdjacencyMatrix[s][t] = true;
             });
         }
     }
@@ -63,8 +63,8 @@ public class TaskGraph {
         childrenList = new List[n];
         durations = new int[n];
         commCosts = new int[n][n];
-        parentsAdjacencyMatrix = new int[n][n];
-        childrenAdjacencyMatrix = new int[n][n];
+        parentsAdjacencyMatrix = new boolean[n][n];
+        childrenAdjacencyMatrix = new boolean[n][n];
 
         for(int i = 0; i < n; i++) {
             parentsList[i] = new ArrayList<Integer>();
@@ -118,7 +118,7 @@ public class TaskGraph {
      * parentsAdjacencyMatrix[node][i] => 1 if i is a parent of node, otherwise 0
      * @return adjacency matrix of all children of all nodes
      */
-    public int[][] getParentsAdjacencyMatrix(){
+    public boolean[][] getParentsAdjacencyMatrix(){
         return parentsAdjacencyMatrix;
     }
 
@@ -126,7 +126,7 @@ public class TaskGraph {
      * childrenAdjacencyMatrix[node][i] => 1 if i is a child of node, otherwise 0
      * @return adjacency matrix of all parents of all nodes
      */
-    public int[][] getChildrenAdjacencyMatrix(){
+    public boolean[][] getChildrenAdjacencyMatrix(){
         return  childrenAdjacencyMatrix;
     }
 }

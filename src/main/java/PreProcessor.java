@@ -78,11 +78,17 @@ public class PreProcessor {
         }
 
         int numTasks = taskGraph.getNumberOfTasks();
-        int[][] parentsAdjacencyMatrix = taskGraph.getParentsAdjacencyMatrix();
-        int[][] childrenAdjacencyMatrix = taskGraph.getChildrenAdjacencyMatrix();
+        boolean[][] parentsAdjacencyMatrix = taskGraph.getParentsAdjacencyMatrix();
+        boolean[][] childrenAdjacencyMatrix = taskGraph.getChildrenAdjacencyMatrix();
         for(int i = 0; i < numTasks; i++){
             if(parentsAdjacencyMatrix[a][i] != parentsAdjacencyMatrix[b][i] || childrenAdjacencyMatrix[a][i] != childrenAdjacencyMatrix[b][i]){
                 return false;
+            }
+            if(parentsAdjacencyMatrix[a][i]) {
+                return taskGraph.getCommCost(i,a) == taskGraph.getCommCost(i,b);
+            }
+            if(childrenAdjacencyMatrix[a][i]) {
+                return taskGraph.getCommCost(a,i) == taskGraph.getCommCost(b,i);
             }
         }
 
