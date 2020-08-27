@@ -448,8 +448,13 @@ public class Solution {
             int earliestStartTimeOnCurrentProcessor = processorFinishTimes[candidateProcessor];
             if(!taskGraph.getParentsList(firstTask).isEmpty()){
                 int parent = taskGraph.getParentsList(firstTask).get(0);
-                earliestStartTimeOnCurrentProcessor = Math.max(earliestStartTimeOnCurrentProcessor, taskStartTimes[parent] + taskGraph.getDuration(parent)
-                        + taskGraph.getCommCost(parent, firstTask));
+                if(scheduledOn[parent] == candidateProcessor) {
+                    earliestStartTimeOnCurrentProcessor = Math.max(earliestStartTimeOnCurrentProcessor, taskStartTimes[parent]
+                            + taskGraph.getDuration(parent));
+                } else {
+                    earliestStartTimeOnCurrentProcessor = Math.max(earliestStartTimeOnCurrentProcessor, taskStartTimes[parent]
+                            + taskGraph.getDuration(parent) + taskGraph.getCommCost(parent, firstTask));
+                }
             }
 
             // Exit conditions 2: tighter constraint now that we have selected the processor
