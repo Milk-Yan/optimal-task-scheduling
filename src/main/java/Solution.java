@@ -70,7 +70,7 @@ public class Solution {
         // Find if we can complete the tasks in Fixed Task Order (FTO)
         LinkedList<Integer> ftoSorted = toFTOList(new LinkedList<>(candidateTasks));
         if (ftoSorted != null) {
-            getFTOSchedule(candidateTasks);
+            getFTOSchedule(ftoSorted);
             return;
         }
 
