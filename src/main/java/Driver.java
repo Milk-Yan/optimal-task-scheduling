@@ -1,6 +1,17 @@
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.stage.Stage;
 import org.apache.commons.cli.*;
+import org.graphstream.graph.Graph;
 
-public class Driver {
+public class Driver extends Application {
+    static int numProcessors;
+    static int numThreads = 1;
+    static String fileName;
+    static TaskGraph taskGraph;
 
     /**
      * Main method of the project from which everything is instantiated and run.
@@ -11,14 +22,13 @@ public class Driver {
      */
     public static void main(String[] args) {
         CommandLine cmd = getCommandLineOptions(args);
-        String fileName = args[0];
+        fileName = args[0];
         String outputFilePath = cmd.getOptionValue('o', fileName.split("\\.")[0] + "-output.dot");
         if (!outputFilePath.endsWith(".dot")) {
             outputFilePath = outputFilePath.concat(".dot");
         }
 
-        int numProcessors = 1; // Default value
-        int numThreads = 1; // Default value
+        numProcessors = 1; // Default value
 
         // Get num processors for schedule
         try {
@@ -39,32 +49,77 @@ public class Driver {
             System.err.println("Note: the parallelised version has not been implemented yet, program will run on one thread");
         }
 
+        // Read input file
+        Graph dotGraph = IOParser.read(fileName);
+        taskGraph = new TaskGraph(dotGraph);
+
         // Get whether the user wants visualisation
         if(cmd.hasOption('v')){
-            System.err.println("Note: the visual version has not been implemented yet");
+            launch(args);
         }
 
-        // Read input file
-        TaskGraph taskGraph = IOParser.read(fileName);
+        Schedule result;
+        Schedule greedySchedule = null;
 
-        // Run greedy algorithm to determine lower bound of optimal solution
-        Greedy g = new Greedy();
-        Schedule greedySchedule = g.run(taskGraph, numProcessors);
+        // if the number of processors is one, then the optimal solution is just everything run
+        // sequentially.
+        if (numProcessors == 1) {
+            SequentialScheduler scheduler = new SequentialScheduler(taskGraph);
+            result = scheduler.getSchedule();
+        } else {
+            // Run greedy algorithm to determine lower bound of optimal solution
+            Greedy g = new Greedy();
+            greedySchedule = g.run(taskGraph, numProcessors);
 
-        // Run algorithm to find optimal schedule
-        Solution solution = new Solution();
-        long startTime = System.currentTimeMillis();
-        Schedule result = solution.run(taskGraph, numProcessors, greedySchedule.getFinishTime());
-        System.out.println(System.currentTimeMillis() - startTime);
+            // Run algorithm to find optimal schedule
+            Solution solution = new Solution();
+            long startTime = System.currentTimeMillis();
+            result = solution.run(taskGraph, numProcessors, greedySchedule.getFinishTime());
+            System.out.println(System.currentTimeMillis() - startTime);
+        }
+
+
 
         // Our solution ignores all schedules that are >= than the greedy schedule,
         // so this is to ensure if nothing is faster, we return the greedy schedule.
-        if (result.getFinishTime() >= greedySchedule.getFinishTime()) {
-            IOParser.write(outputFilePath, taskGraph, greedySchedule.getTasks());
+        if (greedySchedule != null && result.getFinishTime() >= greedySchedule.getFinishTime()) {
+            IOParser.write(outputFilePath, dotGraph, greedySchedule.getTasks());
         } else {
-            IOParser.write(outputFilePath, taskGraph, result.getTasks());
+            IOParser.write(outputFilePath, dotGraph, result.getTasks());
         }
+        System.exit(0);
+    }
 
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        FXMLLoader loader  = new FXMLLoader(getClass().getResource("visualisation-view.fxml"));
+        Parent root = loader.load();
+
+        Controller controller = loader.getController();
+        controller.setUpArgs(numProcessors, fileName, taskGraph.getNumberOfTasks(), numThreads);
+        controller.addTask(0,100,10);
+        controller.addTask(1,200,10);
+        controller.removeLast();
+        controller.addTask(2,100,100);
+        controller.addTask(0,100,150);
+
+        controller.incrementState();
+        controller.incrementState();
+
+        controller.setBestFinishTime(200);
+
+        primaryStage.setTitle("Task Scheduler Visualisation");
+        primaryStage.setScene(new Scene(root, 780, 525));
+        primaryStage.setResizable(false);
+        primaryStage.getIcons().add(new Image("logo.png"));
+        primaryStage.show();
+
+        controller.addTask(0,100,260);
+        controller.addTask(1,100,100);
+        controller.removeLast();
+        controller.addTask(3,100,100);
+        controller.addTask(1,1000,500);
+        controller.addTask(1,130,1500);
     }
 
     private static CommandLine getCommandLineOptions(String[] args){
