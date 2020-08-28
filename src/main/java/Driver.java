@@ -9,7 +9,7 @@ import org.graphstream.graph.Graph;
 
 import java.io.IOException;
 
-public class Driver extends Application {
+public class Driver extends Application{
     static int numProcessors;
     static int numThreads = 1;
     static String fileName;
@@ -94,6 +94,7 @@ public class Driver extends Application {
         }
         System.exit(0);
     }
+
 
     @Override
     public void start(Stage primaryStage) throws Exception {

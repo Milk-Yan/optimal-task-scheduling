@@ -12,8 +12,8 @@ public class SolutionSequential extends Solution {
     private int[] processorFinishTimes; // processorFinishTimes[i] => finishing time of the last task scheduled on processor i
     private int remainingDuration = 0; // total duration of remaining tasks to be scheduled (used for pruning)
 
-    private int[] nodePriorities;   //REFACTORRRRRRRRRRRRRRRRR
-    private ArrayList<Integer>[] equivalentNodesList;  //REFACTORRRRRRRRRRRRRRRRR
+    private int[] nodePriorities;   // a nodes priority for scheduling
+    private ArrayList<Integer>[] equivalentNodesList;  // a list of equivalent node for node i in index i
 
     private int[] bestStartTime; // bestStartTime[i] => start time of task i in best schedule found so far
     private int[] bestScheduledOn; // bestScheduledOn[i] => processor that task i is scheduled on, in best schedule

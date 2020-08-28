@@ -10,9 +10,9 @@ public class SolutionParallel extends Solution {
     private int numTasks;
 
     // does not change
-    private int[] nodePriorities;   //REFACTORRRRRRRRRRRRRRRRR
-    private ArrayList<Integer>[] equivalentNodesList;  //REFACTORRRRRRRRRRRRRRRRR
-    private int[] maxLengthToExitNode;
+    private int[] nodePriorities;  // a nodes priority for scheduling
+    private ArrayList<Integer>[] equivalentNodesList;  // a list of equivalent node for node i in index i
+    private int[] maxLengthToExitNode; // a nodes bottom level
 
     private int[] bestStartTime; // bestStartTime[i] => start time of task i in best schedule found so far
     private volatile int[] bestScheduledOn; // bestScheduledOn[i] => processor that task i is scheduled on, in best schedule
@@ -201,14 +201,8 @@ public class SolutionParallel extends Solution {
                     state.taskStartTimes[candidateTask] = earliestStartTimeOnCurrentProcessor;
 
                     RecursiveSearch recursiveSearch;
-                    try {
-                        recursiveSearch = new RecursiveSearch(state.getDeepCopy());
-                        executableList.add(recursiveSearch);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
+                    recursiveSearch = new RecursiveSearch(state.getDeepCopy());
+                    executableList.add(recursiveSearch);
 
                     // Backtrack state (Location 2: Processors)
                     state.processorFinishTimes[candidateProcessor] = prevFinishTime;
