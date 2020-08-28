@@ -17,7 +17,7 @@ public class SolutionParallel extends Solution {
     private int[] bestStartTime; // bestStartTime[i] => start time of task i in best schedule found so far
     private volatile int[] bestScheduledOn; // bestScheduledOn[i] => processor that task i is scheduled on, in best schedule
     private volatile int bestFinishTime; // earliest finishing time of schedules we have searched
-    private volatile HashSet<Integer> seenSchedules = new HashSet<>();
+    private volatile HashSet<Integer> seenSchedules = new HashSet<>(); //contains the hashCodes of various schedules that we explore
 
     /**
      * Creates an optimal scheduling of tasks on specified number of processors.
@@ -50,7 +50,6 @@ public class SolutionParallel extends Solution {
          */
         @Override
         protected void compute() {
-            System.out.println(Thread.currentThread().getName());
             // Base case is when queue is empty, i.e. all tasks scheduled.
             if (state.candidateTasks.isEmpty()) {
                 int finishTime = findMaxInArray(state.processorFinishTimes);
@@ -131,6 +130,11 @@ public class SolutionParallel extends Solution {
                 boolean loadBalancingConstraint = earliestProcessorFinishTime + loadBalancedRemainingTime >= bestFinishTime;
                 boolean criticalPathConstraint = earliestProcessorFinishTime + longestCriticalPath >= bestFinishTime;
                 boolean latestFinishTimeConstraint = latestProcessorFinishTime >= bestFinishTime;
+                synchronized (this) {
+                    loadBalancingConstraint = earliestProcessorFinishTime + loadBalancedRemainingTime >= bestFinishTime;
+                    criticalPathConstraint = earliestProcessorFinishTime + longestCriticalPath >= bestFinishTime;
+                    latestFinishTimeConstraint = latestProcessorFinishTime >= bestFinishTime;
+                }
                 if (loadBalancingConstraint || criticalPathConstraint || latestFinishTimeConstraint) {
                     state.candidateTasks.add(candidateTask);
                     continue;
@@ -167,7 +171,6 @@ public class SolutionParallel extends Solution {
                     }
                 }
 
-                // Deep copy of candidateList is used in next recursive iteration
                 boolean hasBeenScheduledAtStart = false;
                 for (int candidateProcessor = 0; candidateProcessor < numProcessors; candidateProcessor++) { // Iterate through processors
                     // Avoid processor isomorphism
@@ -189,7 +192,9 @@ public class SolutionParallel extends Solution {
                     }
 
                     // Exit conditions 2: tighter constraint now that we have selected the processor
-                    criticalPathConstraint = earliestStartTimeOnCurrentProcessor + maxLengthToExitNode[candidateTask] >= bestFinishTime;
+                    synchronized (this) {
+                        criticalPathConstraint = earliestStartTimeOnCurrentProcessor + maxLengthToExitNode[candidateTask] >= bestFinishTime;
+                    }
                     if (criticalPathConstraint) {
                         continue;
                     }
@@ -293,12 +298,14 @@ public class SolutionParallel extends Solution {
                 int finishTime = findMaxInArray(state.processorFinishTimes);
 
                 // If schedule time is better, update bestFinishTime and best schedule
-                if (finishTime < bestFinishTime) {
-                    bestFinishTime = finishTime;
+                synchronized (this) {
+                    if (finishTime < bestFinishTime) {
+                        bestFinishTime = finishTime;
 
-                    for (int i = 0; i < bestStartTime.length; i++) {
-                        bestScheduledOn[i] = state.scheduledOn[i];
-                        bestStartTime[i] = state.taskStartTimes[i];
+                        for (int i = 0; i < bestStartTime.length; i++) {
+                            bestScheduledOn[i] = state.scheduledOn[i];
+                            bestStartTime[i] = state.taskStartTimes[i];
+                        }
                     }
                 }
                 return;
@@ -333,9 +340,14 @@ public class SolutionParallel extends Solution {
             }
 
             // Exit conditions 1
-            boolean loadBalancingConstraint = earliestProcessorFinishTime + loadBalancedRemainingTime >= bestFinishTime;
-            boolean criticalPathConstraint = earliestProcessorFinishTime + longestCriticalPath >= bestFinishTime;
-            boolean latestFinishTimeConstraint = latestProcessorFinishTime >= bestFinishTime;
+            boolean loadBalancingConstraint;
+            boolean criticalPathConstraint;
+            boolean latestFinishTimeConstraint;
+            synchronized (this) {
+                loadBalancingConstraint = earliestProcessorFinishTime + loadBalancedRemainingTime >= bestFinishTime;
+                criticalPathConstraint = earliestProcessorFinishTime + longestCriticalPath >= bestFinishTime;
+                latestFinishTimeConstraint = latestProcessorFinishTime >= bestFinishTime;
+            }
             if (loadBalancingConstraint || criticalPathConstraint || latestFinishTimeConstraint) {
                 return;
             }
@@ -386,7 +398,9 @@ public class SolutionParallel extends Solution {
                 }
 
                 // Exit conditions 2: tighter constraint now that we have selected the processor
-                criticalPathConstraint = earliestStartTimeOnCurrentProcessor + maxLengthToExitNode[firstTask] >= bestFinishTime;
+                synchronized (this){
+                    criticalPathConstraint = earliestStartTimeOnCurrentProcessor + maxLengthToExitNode[firstTask] >= bestFinishTime;
+                }
                 if (criticalPathConstraint) {
                     continue;
                 }
