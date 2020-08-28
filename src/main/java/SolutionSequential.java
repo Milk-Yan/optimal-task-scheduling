@@ -1,25 +1,11 @@
 import java.util.*;
 
 public class SolutionSequential extends Solution {
-    private TaskGraph taskGraph;
-    private int numProcessors;
-    private int numTasks;
-
-    private int[] maxLengthToExitNode;
     private int[] inDegrees; // inDegrees[i] => number of unscheduled parent tasks of task i
     private int[] taskStartTimes; // taskStartTimes[i] => start time of task i
     private int[] scheduledOn;  // scheduledOn[i] => the processor task i is scheduled on
     private int[] processorFinishTimes; // processorFinishTimes[i] => finishing time of the last task scheduled on processor i
     private int remainingDuration = 0; // total duration of remaining tasks to be scheduled (used for pruning)
-
-    private int[] nodePriorities;   // a nodes priority for scheduling
-    private ArrayList<Integer>[] equivalentNodesList;  // a list of equivalent node for node i in index i
-
-    private int[] bestStartTime; // bestStartTime[i] => start time of task i in best schedule found so far
-    private int[] bestScheduledOn; // bestScheduledOn[i] => processor that task i is scheduled on, in best schedule
-    private int bestFinishTime; // earliest finishing time of schedules we have searched
-
-    HashSet<Integer> seenSchedules = new HashSet<>();
 
     /**
      * Creates an optimal scheduling of tasks on specified number of processors.

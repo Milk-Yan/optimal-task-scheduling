@@ -24,7 +24,7 @@ public class Controller {
     @FXML
     private Label threadCountLabel; // shows the number of threads used to compute the solution
     @FXML
-    private Label taskScheduledLabel;   // shows the number of tasks scheduled in the current state
+    private Label tasksScheduledLabel;   // shows the number of tasks scheduled in the current state
     @FXML
     private Label currentBestLabel; // shows the finish time of the shortest computed schedule so far
     @FXML
@@ -33,6 +33,7 @@ public class Controller {
     private Label timerLabel;   // shows the elapsed time so far
     @FXML
     private Label statusLabel;  // shows whether the program is running or has finished
+    private boolean isRunning;  // true is program still computing optimal solution, false otherwise
 
     // stackedBarChart has bars equal to the number of processors, and each bar is used to
     // visualise tasks being added to the processor in the GUI
@@ -55,6 +56,7 @@ public class Controller {
 
         // Get the current time, from which elapsed time will be calculated
         long startTime = System.currentTimeMillis();
+        isRunning = true;
 
         // Start a timer
         new AnimationTimer() {
@@ -65,25 +67,13 @@ public class Controller {
                 // Calculate the milliseconds, seconds, and minutes passed since the start of the program.
                 int milliseconds = (int) (elapsedMillis % 1000);
                 int seconds = (int) ((elapsedMillis / 1000) % 60);
-                int minutes = (int) ((elapsedMillis / 1000) / 60);
+                int minutes = (int) ((elapsedMillis / (1000 * 60)) % 60);
+                int hours = (int) (elapsedMillis / (1000 * 60 * 60));
 
-                // Convert the integers above into appropriate strings with proper padding of zeros
-                String millisecondsString = milliseconds < 100
-                        ? "0" + (milliseconds < 10
-                            ? "0" + (milliseconds == 0
-                                ? "0"
-                                : milliseconds)
-                            : milliseconds)
-                        : String.valueOf(milliseconds);
-                String secondsString = (seconds < 10 ? "0" + seconds : seconds) + ".";
-                String minutesString = minutes == 0
-                        ? ""
-                        : (minutes < 10
-                            ? "0" + minutes
-                            : minutes) + ":";
-
-                // Update the elapsed time
-                timerLabel.setText(minutesString + secondsString + millisecondsString);
+                // Update the elapsed time if the program is still running
+                if (isRunning) {
+                    timerLabel.setText(String.format("%02d:%02d:%02d.%d", hours, minutes, seconds, milliseconds));
+                }
             }
         }.start();
     }
@@ -127,7 +117,8 @@ public class Controller {
      * @param startTime the start time of the task
      */
     public void addTask(int processor, int duration, int startTime) {
-
+        // increment tasks scheduled on GUI
+        tasksScheduledLabel.setText("" + (Integer.parseInt(tasksScheduledLabel.getText()) + 1));
         // this is the most recent processor a task has been added to
         lastProcessor.push(processor);
 
@@ -153,6 +144,8 @@ public class Controller {
      * This algorithm removes the last task added from the stackedBarChart on the GUI
      */
     public void removeLast() {
+        // decrement tasks scheduled on GUI
+        tasksScheduledLabel.setText("" + (Integer.parseInt(tasksScheduledLabel.getText()) - 1));
 
         // remove twice because we remove the task and idle time
         stackedBarChart.getData().remove(stackedBarChart.getData().size()-1);
@@ -170,10 +163,20 @@ public class Controller {
     }
 
     /**
-     * This method updates the current finish time label on the GUI to the new best finish time
+     * This method updates the current finish time label on the GUI to the new best finish time.
      * @param bestFinishTime the finish time to update to
      */
     public void setBestFinishTime(int bestFinishTime) {
         currentBestLabel.setText(String.valueOf(bestFinishTime));
+    }
+
+    /**
+     * This method stops the timer and changes the status of the visualisation
+     * from RUNNING to FINISHED.
+     */
+    public void setStatusFinished() {
+        statusLabel.setText("FINISHED");
+        statusLabel.setStyle("-fx-text-fill: forestgreen");
+        isRunning = false;
     }
 }

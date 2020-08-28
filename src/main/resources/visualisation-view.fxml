@@ -164,7 +164,7 @@
                         <Font size="14.0" />
                      </font>
                   </Label>
-                  <Label fx:id="taskScheduledLabel" text="0">
+                  <Label fx:id="tasksScheduledLabel" text="0">
                      <font>
                         <Font size="44.0" />
                      </font>
