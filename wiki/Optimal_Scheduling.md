@@ -16,7 +16,13 @@
 ### Pruning
 Since our search space is exponential, we need to find methods to prune this search space such that it becomes manageable for us to search and find the optimal schedule.
 
-* #### Equivalent Schedule
+* #### Partial equivalent solutions
+   
+    The same order of tasks on processes may reoccur from the exploration of different states.
+    
+    Given a set of free tasks {a, b, c}, suppose that we want to schedule task 'a' on processor at index i. If 'a' has no children, then scheduling b on any processor less than i in the next recursive call will result in the algorithm exploring the same partial state twice. 
+    The reason for this is that node b will eventually get to be scheduled on processors indexed less than i-1 in the initial state and when it recurses, a will get to be scheduled on processors greater than the one b is on. 
+    
 * #### Fixed Task Order (FTO)
    Suppose we are in the process of scheduling our tasks. Let us call the list of tasks where there are either no dependencies, or their dependencies have been completed, our list of candidateTasks. These are the tasks that can currently be scheduled.
    
@@ -41,20 +47,41 @@ Since our search space is exponential, we need to find methods to prune this sea
     
     Since the LBT is a minimum bound on the finish time of the current schedule, if `LBT + earliest time we can schedule the next task` is slower than the current best schedule, we know that the current schedule can't become an optimal schedule and we can prune the tree.
 
-* #### Critical Path
-    The critical path is the path with the largest max length to an exit node in the current schedule. Since no matter what is in our schedule, this critical path will have nodes that depend on each other and hence can only be scheduled sequentially.
+* #### B Levels
+    A B level of a node is the sum of its run time plus the maxiumum path to an exit node from its self. We can use the B level of a node to under estimate the finishing time of the optimal schedule. 
     
-    The critical path is another minimum bound on the finish time of the current schedule. We prune the tree if the `critical path + current elapsed time >= finish time of best schedule` so far.
+    The under estimate for the finishing time of the optimal schedule if we want to schedule task i on processor j is: `earliest Start Time of task i on processor j + B Level of task i`. 
+    
+    The reason why we can guarantee that this estimate is an under estimate is because all the descendants of node i must be scheduled strictly after the finish time of i. 
     
 * #### Latest Processor Finishing Time
     The latest processor finishing time is the finishing time of the processor such that it is the largest among all processors. 
     
     The latest processor finishing time will then be a minimum bound on the finishing time of the current schedule. We stop considering this schedule if it is larger than the finish time of the current best schedule.
 
+* #### Processor Normalization
+    Two processors are isomorphic if they do not have any tasks scheduled on them. Scheduling a task on multiple isomorphic processors produces the same resultant state.
+    
+    In our algorithm, within a given state, we check if a task has been scheduled on a processor with a finish time at time 0. If it has, and the current processor we are considering to schedule it on is isomorphic we continue to the next processor. 
+    
+* #### State Duplication Avoidance
+    If you hash a stack, its hashcode is dependent on the order of things in the stack, when you hash a set, the order doesn't effect the hashcode. This means that, we can detect duplication that arises from swapping the tasks that have been scheduled on two processors. 
+    
+    In our algorithm, we keep the hash codes of different states and check whether the current state is a duplicate of one that we have searched before.
+    
+* #### Node equivalence
+    Two nodes are equivalent if they have the same duration, they have the same parents and children, and the edge costs between their parents and children are the same. 
+    
+    For a given state, there is no point in scheduling two identical tasks on the same processor. In our algorithm, when considering if to schedule a task on a processor, we check to see if we have already scheduled an equivalent task.
+    
+
 ### Edge Cases
-We check for edge cases in our algorithm to ensure that we can sort these edge cases in a faster way than other graphs.
-#### Sequential
-If there is only one processor, then all tasks should simply be scheduled sequentially on the processor with no idle time. The finish time of the optimal schedule is the sum of all the durations of the tasks. All we need to do is to find a valid order to schedule the tasks. 
+    We check for edge cases in our algorithm to ensure that we can sort these edge cases in a faster way than other graphs.
+
+* #### Sequential
+    If there is only one processor, then all tasks should simply be scheduled sequentially on the processor with no idle time. The finish time of the optimal schedule is the sum of all the durations of the tasks. All we need to do is to find a valid order to schedule the tasks. 
+
+
 
 ## Acknowledgements
 - Oliver Sinnen,
