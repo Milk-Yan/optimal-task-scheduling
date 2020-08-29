@@ -4,10 +4,18 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
+/**
+ * The PartialSchedule class encapsulates the logic behind creating a unique hashcode to represent partial schedules.
+ *
+ * The hashcode of partial schedules are added to a set, so we can check whether we have already visited an equivalent state.
+ * This allows us to prune the equivalent states as we can immediately return when the hashcode of a state we are exploring
+ * matches a hashcode already in the set.
+ */
 public class PartialSchedule {
-    /**
-     * This class contains a method which generates a hashcode that represents a partial schedule.
-     * The hashcode is then used to check whether we have explored an equivalent partial schedule.
+
+     /**
+     * Generates a hashcode that represents a partial schedule.
+     * The hashcode is used to check whether we have explored an equivalent partial schedule.
      * The hashcode is generated from the start times and which processor each task in scheduled on,
      * which means it will be unique for each schedule in the solution space that have different overall finish times.
      * @param startTimes startTimes[i] => start time of task i
