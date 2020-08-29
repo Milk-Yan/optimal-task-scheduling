@@ -1,68 +1,46 @@
 import org.junit.Test;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class Tester {
 
-    ValidateSolution validater = new ValidateSolution();
+    private final static int NUM_TESTS = 10;
 
-    @Test
-    public void test() {
+    public static void main(String[] args) throws IOException {
+        SolutionValidater validater = new SolutionValidater();
+        Random randomGenerator = new Random();
 
-        /**
-         * A -> B -> C
-         */
-        final int n = 3;
-        ArrayList<Integer>[] inList = (ArrayList<Integer>[]) new ArrayList[n];
-        inList[0] = new ArrayList<>();
-        inList[1] = new ArrayList<>();
-        inList[1].add(0);
-        inList[2] = new ArrayList<>();
-        inList[2].add(1);
+        File currentDir = new File(System.getProperty("user.dir"));
+        for (File file: currentDir.listFiles()) {
+            if (file.getName().matches("RandomGraph.*\\.dot")) {
+                // only process dot files created from our generator
+                int numProcessors = 1 + randomGenerator.nextInt(4);
+                System.out.println("Testing " + file.getName() + " on " + numProcessors + " processors.");
+                String outputFileName = file.getName().replace(".dot", "-output.dot");
 
-        ArrayList<Integer>[] outList = (ArrayList<Integer>[]) new ArrayList[n];
-        outList[0] = new ArrayList<>();
-        outList[0].add(1);
-        outList[1] = new ArrayList<>();
-        outList[1].add(2);
-        outList[2] = new ArrayList<>();
+                Process process = Runtime.getRuntime().exec("java -jar scheduler.jar " + file.getName() + " " +
+                        numProcessors + " -o " + outputFileName);
 
-        /**
-         * cost of A -> B: 2
-         * cost of A -> C: 3
-         * cost of B -> A: 5
-         * cost of B -> C: 2
-         * cost of C -> A: 5
-         * cost of C -> B: 1
-         */
-        int[][] commCosts = new int[n][n];
-        commCosts[0][1] = 2;
-        commCosts[0][2] = 3;
-        commCosts[1][0] = 5;
-        commCosts[1][2] = 2;
-        commCosts[2][0] = 5;
-        commCosts[2][1] = 1;
+                try {
+                    process.waitFor();
+                } catch (Exception e) {
+                    System.err.println("Error waiting for scheduler to run programs");
+                }
 
-        int[] durations = new int[n];
-        durations[0] = 2;
-        durations[1] = 2;
-        durations[2] = 2;
-
-        int numProcessors = 2;
-
-//        Solution solution = new Solution();
-        // TODO
-        // Fix tests
-//        Task[] result = solution.run(new TaskGraph(inList, outList, durations, commCosts), numProcessors);
-//
-//        assertTrue(validater.validate(inList, commCosts, durations, numProcessors, result));
-    }
-
-    @Test
-    public void testEmpty() {
-        assertTrue(validater.validate(null, null, null, 2, null));
+                if (validater.validate(file.getName(), outputFileName, numProcessors)) {
+                    System.out.println("Validated.");
+                } else {
+                    System.out.println("The output is not valid!!");
+                }
+                file.delete();
+                new File(outputFileName).delete();
+            }
+        }
     }
 }

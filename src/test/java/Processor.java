@@ -9,13 +9,15 @@ public class Processor {
     List<Integer> startTimes = new ArrayList<>();
     List<Integer> endTimes = new ArrayList<>();
 
-    public boolean isOccupied(Task task) {
+    public boolean isOccupied(int startTime, int duration) {
+
+        int finishTime = startTime + duration;
 
         for (int i = 0; i < startTimes.size(); i++) {
-            int startTime = startTimes.get(i);
-            int endTime = endTimes.get(i);
+            int occupiedStartTime = startTimes.get(i);
+            int occupiedEndTime = endTimes.get(i);
 
-            if (task.getStartTime() < endTime && task.getFinishTime() > startTime) {
+            if (startTime < occupiedEndTime && finishTime > occupiedStartTime) {
                 return true;
             }
         }
@@ -23,9 +25,9 @@ public class Processor {
         return false;
     }
 
-    public void add(Task task) {
-        startTimes.add(task.getStartTime());
-        endTimes.add(task.getFinishTime());
+    public void add(int startTime, int duration) {
+        startTimes.add(startTime);
+        endTimes.add(startTime + duration);
     }
 
 }
