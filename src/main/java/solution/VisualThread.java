@@ -10,17 +10,29 @@ import solution.helpers.SequentialScheduler;
 
 import java.util.List;
 
+/**
+ * This class acts as a wrapper for a Solution object so that it can publish information for the GUI to use.
+ * This is done by extending the thread class, so that it may be polled.
+ * The intermediate results of the solution are accessed by a poller via getters provided in this class.
+ */
 public class VisualThread extends Thread {
-    private Solution solution;
-    private TaskGraph taskGraph;
-    private int numProcessors;
-    private String outputFilePath;
-    private Graph dotGraph;
+    private final Solution solution;
+    private final TaskGraph taskGraph;
+    private final int numProcessors;
+    private final String outputFilePath;
+    private final Graph dotGraph;
 
+    /**
+     * @param solution The solution that runs on this thread.
+     * @param taskGraph The input graph on which the solution runs.
+     * @param numProcessors The number of processors to schedule tasks on.
+     * @param outputFilePath The path to the output file.
+     * @param dotGraph The input graph in dot format.
+     */
     public VisualThread(Solution solution, TaskGraph taskGraph, int numProcessors, String outputFilePath, Graph dotGraph) {
         super();
         this.solution = solution;
-        solution.setVisual();
+        solution.setVisual(); // flag the solution as visual
         this.taskGraph = taskGraph;
         this.numProcessors = numProcessors;
         this.outputFilePath = outputFilePath;
@@ -56,6 +68,8 @@ public class VisualThread extends Thread {
         }
     }
 
+    // Getter methods by which the poller of this thread can access the published results of the solution.
+
     public synchronized int getCurrentBest() {
         return solution.bestFinishTime;
     }
@@ -72,6 +86,7 @@ public class VisualThread extends Thread {
         return solution.bestSchedule;
     }
 
+    // Check that the best solution has changed since last received.
     public synchronized boolean getBestChanged() {
         boolean hasChanged = solution.bestChanged;
         solution.bestChanged = false;

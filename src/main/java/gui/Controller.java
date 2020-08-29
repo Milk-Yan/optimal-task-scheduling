@@ -5,7 +5,6 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.StackedBarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
@@ -15,7 +14,7 @@ import solution.VisualThread;
 import java.util.*;
 
 /**
- * gui.Controller class for the visualisation (GUI). It connects to the fxml file.
+ * Controller class for the visualisation (GUI). It connects to the fxml file.
  * Used to manage and modify information presented to the user in the GUI.
  */
 public class Controller {
@@ -37,26 +36,23 @@ public class Controller {
     private Label statusLabel;  // shows whether the program is running or has finished
 
     @FXML
-    private Button startButton;
+    private Button startButton; // button which starts the algorithm
 
-    // stackedBarChart has bars equal to the number of processors, and each bar is used to
-    // visualise tasks being added to the processor in the GUI
+    // A stacked bar chart is used to visualise the current best schedule found.
+    // Each bar represents tasks scheduled on a processor.
     @FXML
     private StackedBarChart<String, Number> stackedBarChart;
     @FXML
     private CategoryAxis xAxis;
-    @FXML
-    private NumberAxis yAxis;
 
     private int numProcessors;
 
-    private VisualThread visualThread;
-    private Timer poller;
-    private Timer timer;
+    private VisualThread visualThread; // thread on which the algorithm runs
+    private Timer poller; // timer which polls the algorithm
+    private Timer timer; // timer for displaying the run time
 
     /**
-     * This method sets up initial values for labels in the GUI. It also sets up data structures used when adding
-     * and removing tasks from the stackedBarChart.
+     * This method sets up initial values for labels in the GUI, along with any other information it needs.
      * @param visualThread thread on which the algorithm runs
      * @param numProcessors number of processors
      * @param inputGraphName name of the input file
@@ -78,6 +74,12 @@ public class Controller {
         xAxis.setCategories(FXCollections.observableArrayList(xAxisProcessors));
     }
 
+    /**
+     * Called when the start button is clicked; starts the algorithm by running the visual thread.
+     * This thread is periodically polled for information that the GUI needs.
+     * If there are updates that need to be made, they are done on the FX Application thread.
+     * The timer displaying the elapsed time is also started.
+     */
     @FXML
     private void start() {
         final long startTime = System.currentTimeMillis();
@@ -85,16 +87,20 @@ public class Controller {
         startButton.setDisable(true);
         setStatusRunning();
 
+        // Start the algorithm
         visualThread.start();
         poller = new Timer();
         poller.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
+                // Get information from GUI thread via polling
                 long stateCount = visualThread.getStateCount();
                 boolean isDone = visualThread.isDone();
 
+                // Run GUI changes in application thread
                 Platform.runLater(() -> {
                     updateStateCountLabel(stateCount);
+                    // Only update if change is detected
                     if (visualThread.getBestChanged()) {
                         currentBestLabel.setText(visualThread.getCurrentBest() + "");
                         updateStackedBarChart(visualThread.getBestSchedule());
@@ -106,6 +112,7 @@ public class Controller {
             }
         }, 0, 100);
 
+        // Timer for displaying the elapsed item.
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -124,12 +131,20 @@ public class Controller {
 
     }
 
+    /**
+     * Method called when the algorithm has stopped running.
+     * Stops the poller and timer, and updates the status label.
+     */
     private void stop() {
         poller.cancel();
         timer.cancel();
         setStatusFinished();
     }
 
+    /**
+     * Updates the state count label, rounds to the nearest K, M or B.
+     * @param stateCount new state count value
+     */
     private void updateStateCountLabel(long stateCount) {
         if (stateCount < 1000) {
             stateCountLabel.setText(stateCount + "");
@@ -149,24 +164,33 @@ public class Controller {
      * makes it invisible, as the bar chart cannot have gaps.
      */
     public void updateStackedBarChart(List<Task>[] bestSchedule) {
+        // Clear the data already in the bar chart.
         stackedBarChart.getData().clear();
         XYChart.Series<String, Number> series = new XYChart.Series<>();
 
+        // Sort tasks by start time
         for (int i = 0; i < numProcessors; i++) {
             Collections.sort(bestSchedule[i]);
         }
 
-        for (int i = 0; i < numProcessors; i++) {
+        // We need to add idle time tasks in between tasks with idle time.
+        for (int i = 0; i < numProcessors; i++) { // loop over all processors
             List<Task> processorList = bestSchedule[i];
             if (processorList.size() != 0 && processorList.get(0).getStartTime() != 0) {
+                // If there needs to be idle time added at the very start of a processor, add it
+                // This is true if the first task does not start at 0.
                 Task idleTask = new Task(0, processorList.get(0).getStartTime(), true);
                 processorList.add(0, idleTask);
             }
+
+            // Add idle time tasks everywhere else it is needed.
             int j = 1;
             while (processorList.size() > j) {
                 Task currTask = processorList.get(j);
                 Task prevTask = processorList.get(j - 1);
                 if (currTask.getStartTime() != prevTask.getStartTime() + prevTask.getDuration()) {
+                    // The finish time of the previous task does not equal the start time of this task.
+                    // Idle time is added.
                     int idleStartTime = prevTask.getStartTime() + prevTask.getDuration();
                     int idleDuration = currTask.getStartTime() - idleStartTime;
                     Task idleTask = new Task(idleStartTime, idleDuration, true);
@@ -177,6 +201,7 @@ public class Controller {
             }
         }
 
+        // Create and add each bar into the series so that it can be displayed
         for (int i = 0; i < numProcessors; i++) {
             for (int j = 0; j < bestSchedule[i].size(); j++) {
                 Task task = bestSchedule[i].get(j);
@@ -184,8 +209,10 @@ public class Controller {
                 bar.nodeProperty().addListener((ov, oldNode, node) -> {
                     if (node != null) {
                         if (task.isIdle()) {
+                            // Idle tasks should be transparent
                             node.setStyle("-fx-bar-fill: transparent");
                         } else {
+                            // Tasks should be coloured
                             node.setStyle("-fx-bar-fill: #e9c4bc;-fx-border-color: #444;");
                         }
                     }
@@ -194,18 +221,21 @@ public class Controller {
             }
         }
 
+        // Set the data of the stacked bar chart to the new best schedule series.
         stackedBarChart.getData().addAll(series);
     }
 
     /**
-     * This method stops the timer and changes the status of the visualisation
-     * from RUNNING to FINISHED.
+     * Changes the status of the visualisation to FINISHED.
      */
     private void setStatusFinished() {
         statusLabel.setText("FINISHED");
         statusLabel.setStyle("-fx-text-fill: forestgreen");
     }
 
+    /**
+     * Changes the status of the visualisation to RUNNING.
+     */
     private void setStatusRunning() {
         statusLabel.setText("RUNNING");
         statusLabel.setStyle("-fx-text-fill: #ff3116");
