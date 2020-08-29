@@ -8,6 +8,10 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import solution.VisualThread;
 
+/**
+ * Visualiser is run on the main thread and is responsible for loading the stage in which
+ * the GUI is run
+ */
 public class Visualiser extends Application {
 
     private Controller controller;
@@ -23,10 +27,17 @@ public class Visualiser extends Application {
         primaryStage.setScene(new Scene(root, 800, 525));
         primaryStage.setResizable(false);
         primaryStage.getIcons().add(new Image("logo.png"));
-        primaryStage.setOnCloseRequest(event -> System.exit(0));
         primaryStage.show();
+
+        // When the GUI window is closed, the algorithm is also aborted.
+        primaryStage.setOnCloseRequest(event -> System.exit(0));
+
     }
 
+    /**
+     * This method sets up required fields in the controller object which is then shown on the GUI.
+     * @param visualThread the thread in which the solution is run. Used to communicate with the GUI.
+     */
     public void setUpArgs(VisualThread visualThread, int numProcessors, String fileName, int numTasks, int numThreads) {
         controller.setUpArgs(visualThread, numProcessors, fileName, numTasks, numThreads);
     }

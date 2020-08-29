@@ -3,6 +3,7 @@ package solution.helpers;
 import data.Schedule;
 import data.Task;
 import data.TaskGraph;
+
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -18,12 +19,17 @@ public class Greedy {
     public Schedule run(TaskGraph taskGraph, int numProcessors) {
         int n = taskGraph.getNumberOfTasks();
         int finalFinishTime = 0;
-
         Task[] output = new Task[n];
-        int[][] earliestScheduleTimes = new int[n][numProcessors]; // i,j indicates earliest time to schedule task i on processor j
 
-        int[] inDegrees = new int[n];
+        // scheduleCandidates contains all possible tasks which are able to be scheduled
         Queue<Integer> scheduleCandidates = new LinkedList<>();
+
+        // earliestScheduleTimes[i][j] => earliest possible time to schedule task i on processor j
+        int[][] earliestScheduleTimes = new int[n][numProcessors];
+
+        // Set up the number of parents (in-degrees) of each task. If a task has no parent, then
+        // we add it to the scheduleCandidates queue.
+        int[] inDegrees = new int[n];
         for (int i = 0; i < n; i++) {
             inDegrees[i] = taskGraph.getParentsList(i).size();
             if (inDegrees[i] == 0) {
@@ -31,6 +37,7 @@ public class Greedy {
             }
         }
 
+        // repeat until all tasks have been scheduled (and a viable solution is found)
         while (!scheduleCandidates.isEmpty()) {
             // find a node with in degree 0
             int candidate = scheduleCandidates.poll();
@@ -46,7 +53,7 @@ public class Greedy {
                 }
             }
 
-            // data.Schedule task
+            // schedule task
             int finishTime = minStartTime + taskGraph.getDuration(candidate);
             finalFinishTime = Math.max(finalFinishTime, finishTime);
 
