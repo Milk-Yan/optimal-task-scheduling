@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The data.TaskGraph class encapsulates tasks and their dependencies.
+ * The TaskGraph class encapsulates tasks and their dependencies.
  */
 public class TaskGraph {
-    private int numberOfTasks;
+    private final int numberOfTasks;
 
     private List<Integer>[] parentsList;
     private List<Integer>[] childrenList;
@@ -48,7 +48,8 @@ public class TaskGraph {
      * Initializes a data.TaskGraph object from given fields.
      * Only used for testing purposes.
      */
-    public TaskGraph(List<Integer>[] parentsList, List<Integer>[] childrenList, int[] durations, int[][] commCosts){
+    public TaskGraph(List<Integer>[] parentsList, List<Integer>[] childrenList,
+                     int[] durations, int[][] commCosts){
         this.numberOfTasks = parentsList.length;
         this.parentsList = parentsList;
         this.childrenList = childrenList;
@@ -76,57 +77,54 @@ public class TaskGraph {
 
 
     /**
-     * @return the number of tasks in the task graph.
+     * @return The number of tasks in the task graph.
      */
     public int getNumberOfTasks() {
         return numberOfTasks;
     }
 
     /**
-     * @param task task to get parents of
-     * @return list of parents of task
+     * @return A list of the parents of the input task.
      */
     public List<Integer> getParentsList(int task) {
         return parentsList[task];
     }
 
     /**
-     * @param task task to get children of
-     * @return list of children of task
+     * @return A list of the children of the input task.
      */
     public List<Integer> getChildrenList(int task) {
         return childrenList[task];
     }
 
     /**
-     * @param task task to get duration of
-     * @return duration of specified task
+     * @return The duration of specified input task.
      */
     public int getDuration(int task) {
         return durations[task];
     }
 
     /**
-     * @param parent parent task
-     * @param child task which depends on source
-     * @return communication cost of scheduling dest on another processor from source
-     * if (parent is not a parent of child), returns 0
+     * @param parent parent task.
+     * @param child task which depends on parent.
+     * @return The communication cost of scheduling the child on another processor
+     * from the parent. If (parent is not a parent of child), returns 0.
      */
     public int getCommCost(int parent, int child) {
         return commCosts[parent][child];
     }
 
     /**
-     * parentsAdjacencyMatrix[node][i] => 1 if i is a parent of node, otherwise 0
-     * @return adjacency matrix of all children of all nodes
+     * parentsAdjacencyMatrix[node][i] => 1 if i is a parent of node, otherwise 0.
+     * @return adjacency matrix of all children of all nodes.
      */
     public boolean[][] getParentsAdjacencyMatrix(){
         return parentsAdjacencyMatrix;
     }
 
     /**
-     * childrenAdjacencyMatrix[node][i] => 1 if i is a child of node, otherwise 0
-     * @return adjacency matrix of all parents of all nodes
+     * childrenAdjacencyMatrix[node][i] => 1 if i is a child of node, otherwise 0.
+     * @return adjacency matrix of all parents of all nodes.
      */
     public boolean[][] getChildrenAdjacencyMatrix(){
         return  childrenAdjacencyMatrix;
