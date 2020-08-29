@@ -1,4 +1,3 @@
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -13,13 +12,14 @@ public class SolutionParallel extends Solution {
      * @param upperBoundTime Upper bound of running time that the optimal solution should do at least as good as.
      * @return optimal schedule found by the run method.
      */
-    public Schedule run(TaskGraph taskGraph, int numProcessors, int upperBoundTime) throws IOException, ClassNotFoundException {
+    public Schedule run(TaskGraph taskGraph, int numProcessors, int upperBoundTime) {
         initializeGlobalVars(taskGraph, numProcessors, upperBoundTime);
         State initialState = initializeState(taskGraph, numProcessors);
 
         RecursiveSearch recursiveSearch = new RecursiveSearch(initialState);
         forkJoinPool.invoke(recursiveSearch);
 
+        setDone();
         return createOutput();
     }
 
@@ -36,6 +36,8 @@ public class SolutionParallel extends Solution {
          */
         @Override
         protected void compute() {
+            updateStateCount();
+
             // Base case is when queue is empty, i.e. all tasks scheduled.
             if (state.candidateTasks.isEmpty()) {
                 int finishTime = findMaxInArray(state.processorFinishTimes);
@@ -49,6 +51,7 @@ public class SolutionParallel extends Solution {
                             bestScheduledOn[i] = state.scheduledOn[i];
                             bestStartTime[i] = state.taskStartTimes[i];
                         }
+                        updateBestSchedule();
                     }
                 }
                 return;
@@ -242,6 +245,7 @@ public class SolutionParallel extends Solution {
         maxLengthToExitNode = PreProcessor.maxLengthToExitNode(taskGraph);
         nodePriorities = maxLengthToExitNode; //REFACTOR;
         bestFinishTime = upperBoundTime;
+        updateBestSchedule();
         numTasks = taskGraph.getNumberOfTasks();
         equivalentNodesList = PreProcessor.getNodeEquivalence(taskGraph); //REFACTOR
         bestStartTime = new int[numTasks];

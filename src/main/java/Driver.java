@@ -1,3 +1,5 @@
+import com.sun.javafx.application.PlatformImpl;
+import javafx.stage.Stage;
 import org.apache.commons.cli.*;
 import org.graphstream.graph.Graph;
 
@@ -16,13 +18,14 @@ public class Driver {
      * @param args Array of string of inputs, in order: input file name, processor count, [OPTIONAL]: (-p) number of cores,
      *             (-v) visualisation of search, (-o) name of output file
      */
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+    public static void main(String[] args) throws Exception {
         CommandLine cmd = getCommandLineOptions(args);
         fileName = args[0];
         String outputFilePath = cmd.getOptionValue('o', fileName.split("\\.")[0] + "-output.dot");
         if (!outputFilePath.endsWith(".dot")) {
             outputFilePath = outputFilePath.concat(".dot");
         }
+        final String finalOutputFilePath = outputFilePath;
 
         numProcessors = 1; // Default value
 
@@ -53,39 +56,46 @@ public class Driver {
         taskGraph = new TaskGraph(dotGraph);
 
         // Get whether the user wants visualisation
-        if(cmd.hasOption('v')){
-            Visualiser.run(args, numProcessors, fileName, taskGraph.getNumberOfTasks(), numThreads);
-        }
-
-        Schedule result;
-        Schedule greedySchedule = null;
-
-        // if the number of processors is one, then the optimal solution is just everything run
-        // sequentially.
-        if (numProcessors == 1) {
-            SequentialScheduler scheduler = new SequentialScheduler(taskGraph);
-            result = scheduler.getSchedule();
+        if(cmd.hasOption('v')) {
+            PlatformImpl.startup(() -> {
+                Visualiser visualiser = new Visualiser();
+                VisualThread visualThread = new VisualThread(solution, taskGraph, numProcessors, finalOutputFilePath, dotGraph);
+                try {
+                    visualiser.start(new Stage());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                visualiser.setUpArgs(visualThread, numProcessors, fileName, taskGraph.getNumberOfTasks(), numThreads);
+            });
         } else {
-            // Run greedy algorithm to determine lower bound of optimal solution
-            Greedy g = new Greedy();
-            greedySchedule = g.run(taskGraph, numProcessors);
+            Schedule result;
+            Schedule greedySchedule = null;
 
-            // Run algorithm to find optimal schedule
-            long startTime = System.currentTimeMillis();
-            result = solution.run(taskGraph, numProcessors, greedySchedule.getFinishTime());
-            System.out.println(System.currentTimeMillis() - startTime);
+            // if the number of processors is one, then the optimal solution is just everything run
+            // sequentially.
+            if (numProcessors == 1) {
+                SequentialScheduler scheduler = new SequentialScheduler(taskGraph);
+                result = scheduler.getSchedule();
+            } else {
+                // Run greedy algorithm to determine lower bound of optimal solution
+                Greedy g = new Greedy();
+                greedySchedule = g.run(taskGraph, numProcessors);
+
+                // Run algorithm to find optimal schedule
+                long startTime = System.currentTimeMillis();
+                result = solution.run(taskGraph, numProcessors, greedySchedule.getFinishTime());
+                System.out.println("Program ran in: " + (System.currentTimeMillis() - startTime) + "ms");
+            }
+
+            // Our solution ignores all schedules that are >= than the greedy schedule,
+            // so this is to ensure if nothing is faster, we return the greedy schedule.
+            if (greedySchedule != null && result.getFinishTime() >= greedySchedule.getFinishTime()) {
+                IOParser.write(outputFilePath, dotGraph, greedySchedule.getTasks());
+            } else {
+                IOParser.write(outputFilePath, dotGraph, result.getTasks());
+            }
+            System.exit(0);
         }
-
-
-
-        // Our solution ignores all schedules that are >= than the greedy schedule,
-        // so this is to ensure if nothing is faster, we return the greedy schedule.
-        if (greedySchedule != null && result.getFinishTime() >= greedySchedule.getFinishTime()) {
-            IOParser.write(outputFilePath, dotGraph, greedySchedule.getTasks());
-        } else {
-            IOParser.write(outputFilePath, dotGraph, result.getTasks());
-        }
-        System.exit(0);
     }
 
     private static CommandLine getCommandLineOptions(String[] args){

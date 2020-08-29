@@ -4,11 +4,13 @@ import java.util.List;
 /**
  * Class to keep track of all information related to a scheduled task
  */
-public class Task {
+public class Task implements Comparable<Task> {
     int id;
     int startTime;
     int finishTime;
     int processor;
+    int duration;
+    boolean isIdle;
     List<Task> parents = new ArrayList<>();
 
     /**
@@ -28,6 +30,12 @@ public class Task {
         this.processor = processor;
     }
 
+    public Task(int startTime, int duration, boolean isIdle) {
+        this.startTime = startTime;
+        this.duration = duration;
+        this.isIdle = isIdle;
+    }
+
     public int getProcessor() {
         return processor;
     }
@@ -45,5 +53,10 @@ public class Task {
 
     public List<Task> getParents() {
         return parents;
+    }
+
+    @Override
+    public int compareTo(Task o) {
+        return this.startTime - o.startTime;
     }
 }

@@ -1,13 +1,3 @@
-.default-color0.chart-bar, .default-color2.chart-bar, .default-color4.chart-bar,
-.default-color6.chart-bar, .default-color8.chart-bar {
-    -fx-bar-fill: rgba(255, 255, 255, 0);
-}
-
-.default-color1.chart-bar, .default-color3.chart-bar, .default-color5.chart-bar,
-.default-color7.chart-bar, .default-color9.chart-bar {
-    -fx-bar-fill: #e9c4bc;
-}
-
 .axis {
     -fx-font-size: 13pt;
 }
@@ -31,3 +21,29 @@
 .chart-horizontal-grid-lines {
     -fx-stroke: #DDD;
 }
+
+.button {
+    -fx-background-color: white;
+    -fx-border-color: white;
+    -fx-text-fill: #f86a56;
+    -fx-font-size: 24;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-effect: dropshadow(two-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
+}
+
+.button:hover{
+    -fx-text-fill: white;
+    -fx-border-color: #e7a499;
+    -fx-background-color: #e7a499;
+    -fx-effect: dropshadow(two-pass-box, rgba(0,0,0,0.8), 10, 0.2, 0, 0);
+}
+
+.button:disabled{
+    -fx-background-color: white;
+    -fx-border-color: #333;
+    -fx-border-width: 2;
+    -fx-text-fill: #333;
+    -fx-effect: none;
+}
+

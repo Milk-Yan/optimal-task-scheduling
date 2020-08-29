@@ -21,6 +21,7 @@ public class SolutionSequential extends Solution {
         equivalentNodesList = PreProcessor.getNodeEquivalence(taskGraph); //REFACTOR
         recursiveSearch(candidateTasks);
         System.out.println(bestFinishTime);
+        setDone();
         return createOutput();
     }
 
@@ -29,6 +30,8 @@ public class SolutionSequential extends Solution {
      * Uses DFS to try all possible schedules.
      */
     private void recursiveSearch(LinkedList<Integer> candidateTasks) {
+        updateStateCount();
+
         // Base case is when queue is empty, i.e. all tasks scheduled.
         if (candidateTasks.isEmpty()) {
             int finishTime = findMaxInArray(processorFinishTimes);
@@ -41,6 +44,7 @@ public class SolutionSequential extends Solution {
                     bestScheduledOn[i] = scheduledOn[i];
                     bestStartTime[i] = taskStartTimes[i];
                 }
+                updateBestSchedule();
             }
             return;
         }
@@ -197,6 +201,7 @@ public class SolutionSequential extends Solution {
 
         maxLengthToExitNode = PreProcessor.maxLengthToExitNode(taskGraph);
         bestFinishTime = upperBoundTime;
+        updateBestSchedule();
         numTasks = taskGraph.getNumberOfTasks();
 
         inDegrees = new int[numTasks];
@@ -363,6 +368,8 @@ public class SolutionSequential extends Solution {
     }
 
     private void getFTOSchedule(LinkedList<Integer> ftoSortedList) {
+        updateStateCount();
+
         // Base case
         if (ftoSortedList.isEmpty()) {
             int finishTime = findMaxInArray(processorFinishTimes);
@@ -375,6 +382,7 @@ public class SolutionSequential extends Solution {
                     bestScheduledOn[i] = scheduledOn[i];
                     bestStartTime[i] = taskStartTimes[i];
                 }
+                updateBestSchedule();
             }
             return;
         }
