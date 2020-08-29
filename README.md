@@ -39,7 +39,7 @@ To compile the project, run the following command from the root directory of the
 mvn clean install
 ```
 This will create a runnable jar called `scheduler.jar`.
-To gain persmissions to execute the jar, run the following command.
+To gain permissions to execute the jar, run the following command.
 ```
 chmod 777 scheduler.jar
 ```
