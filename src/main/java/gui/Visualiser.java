@@ -18,7 +18,7 @@ public class Visualiser extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader loader  = new FXMLLoader(getClass().getResource("../visualisation-view.fxml"));
+        FXMLLoader loader  = new FXMLLoader(getClass().getResource("visualisation-view.fxml"));
         Parent root = loader.load();
 
         this.controller = loader.getController();
@@ -26,7 +26,7 @@ public class Visualiser extends Application {
         primaryStage.setTitle("Task Scheduler Visualisation");
         primaryStage.setScene(new Scene(root, 800, 525));
         primaryStage.setResizable(false);
-        primaryStage.getIcons().add(new Image("logo.png"));
+        primaryStage.getIcons().add(new Image("gui/logo.png"));
         primaryStage.show();
 
         // When the GUI window is closed, the algorithm is also aborted.
