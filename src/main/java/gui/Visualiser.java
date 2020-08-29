@@ -19,7 +19,7 @@ public class Visualiser extends Application {
 
         this.controller = loader.getController();
 
-        primaryStage.setTitle("data.Task Scheduler Visualisation");
+        primaryStage.setTitle("Task Scheduler Visualisation");
         primaryStage.setScene(new Scene(root, 800, 525));
         primaryStage.setResizable(false);
         primaryStage.getIcons().add(new Image("logo.png"));
