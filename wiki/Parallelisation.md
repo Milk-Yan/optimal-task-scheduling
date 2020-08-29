@@ -1,4 +1,4 @@
-#Parallelization
+# Parallelization
 
 Because each thread will work on exploring different states, we need to give then their own independent copies of the state. To do this, we created a 
 'State' class which contains fields that keep track of the free tasks in the state, in degree of tasks, task start times, processors that the tasks are 
