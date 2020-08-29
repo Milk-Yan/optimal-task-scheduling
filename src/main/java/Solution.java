@@ -35,7 +35,7 @@ public abstract class Solution {
         isDone = true;
     }
 
-    protected synchronized void updateBestSchedule() {
+    protected synchronized void updateBestScheduleOnVisual() {
         if (!isVisual) return;
         bestSchedule = new List[numProcessors];
         for (int i = 0; i < numProcessors; i++) {

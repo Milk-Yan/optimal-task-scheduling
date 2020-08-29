@@ -51,7 +51,7 @@ public class SolutionParallel extends Solution {
                             bestScheduledOn[i] = state.scheduledOn[i];
                             bestStartTime[i] = state.taskStartTimes[i];
                         }
-                        updateBestSchedule();
+                        updateBestScheduleOnVisual();
                     }
                 }
                 return;
@@ -243,11 +243,11 @@ public class SolutionParallel extends Solution {
         this.taskGraph = taskGraph;
         this.numProcessors = numProcessors;
         maxLengthToExitNode = PreProcessor.maxLengthToExitNode(taskGraph);
-        nodePriorities = maxLengthToExitNode; //REFACTOR;
+        nodePriorities = maxLengthToExitNode;
         bestFinishTime = upperBoundTime;
-        updateBestSchedule();
+        updateBestScheduleOnVisual();
         numTasks = taskGraph.getNumberOfTasks();
-        equivalentNodesList = PreProcessor.getNodeEquivalence(taskGraph); //REFACTOR
+        equivalentNodesList = PreProcessor.getNodeEquivalence(taskGraph);
         bestStartTime = new int[numTasks];
         bestScheduledOn = new int[numTasks];
     }
