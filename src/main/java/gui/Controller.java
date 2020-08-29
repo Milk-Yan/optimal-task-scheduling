@@ -1,3 +1,6 @@
+package gui;
+
+import data.Task;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -8,10 +11,11 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 
+import solution.VisualThread;
 import java.util.*;
 
 /**
- * Controller class for the visualisation (GUI). It connects to the fxml file.
+ * gui.Controller class for the visualisation (GUI). It connects to the fxml file.
  * Used to manage and modify information presented to the user in the GUI.
  */
 public class Controller {
@@ -154,17 +158,17 @@ public class Controller {
 
         for (int i = 0; i < numProcessors; i++) {
             List<Task> processorList = bestSchedule[i];
-            if (processorList.size() != 0 && processorList.get(0).startTime != 0) {
-                Task idleTask = new Task(0, processorList.get(0).startTime, true);
+            if (processorList.size() != 0 && processorList.get(0).getStartTime() != 0) {
+                Task idleTask = new Task(0, processorList.get(0).getStartTime(), true);
                 processorList.add(0, idleTask);
             }
             int j = 1;
             while (processorList.size() > j) {
                 Task currTask = processorList.get(j);
                 Task prevTask = processorList.get(j - 1);
-                if (currTask.startTime != prevTask.startTime + prevTask.duration) {
-                    int idleStartTime = prevTask.startTime + prevTask.duration;
-                    int idleDuration = currTask.startTime - idleStartTime;
+                if (currTask.getStartTime() != prevTask.getStartTime() + prevTask.getDuration()) {
+                    int idleStartTime = prevTask.getStartTime() + prevTask.getDuration();
+                    int idleDuration = currTask.getStartTime() - idleStartTime;
                     Task idleTask = new Task(idleStartTime, idleDuration, true);
                     processorList.add(j, idleTask);
                     j++;
@@ -176,10 +180,10 @@ public class Controller {
         for (int i = 0; i < numProcessors; i++) {
             for (int j = 0; j < bestSchedule[i].size(); j++) {
                 Task task = bestSchedule[i].get(j);
-                final XYChart.Data<String, Number> bar = new XYChart.Data<>((numProcessors - i) + "", task.duration);
+                final XYChart.Data<String, Number> bar = new XYChart.Data<>((numProcessors - i) + "", task.getDuration());
                 bar.nodeProperty().addListener((ov, oldNode, node) -> {
                     if (node != null) {
-                        if (task.isIdle) {
+                        if (task.isIdle()) {
                             node.setStyle("-fx-bar-fill: transparent");
                         } else {
                             node.setStyle("-fx-bar-fill: #e9c4bc;-fx-border-color: #444;");

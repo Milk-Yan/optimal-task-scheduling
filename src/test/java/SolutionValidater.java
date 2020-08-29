@@ -1,7 +1,6 @@
+import io.IOParser;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-
-import java.util.List;
 
 /**
  * Utility class to check if a solution is valid given the constraints
@@ -11,7 +10,7 @@ public class SolutionValidater {
 
 
     /**
-     * Finds if the input Task graph is a valid set of solutions.
+     * Finds if the input data.Task graph is a valid set of solutions.
     */
     public boolean validate(String inputFileName, String outputFileName, int numProcessors) {
         Graph inputGraph = IOParser.read(inputFileName);
@@ -65,7 +64,7 @@ public class SolutionValidater {
 
             // check if a processor gets occupied at the same time, which is invalid
             if (processors[scheduledOn[i]-1].isOccupied(startTimes[i], inputDurations[i])) {
-                System.out.println("Task that is occupied already during this time frame is " +
+                System.out.println("data.Task that is occupied already during this time frame is " +
                         " getting used.");
                 return false;
             } else {

@@ -1,9 +1,12 @@
+package gui;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import solution.VisualThread;
 
 public class Visualiser extends Application {
 
@@ -11,12 +14,12 @@ public class Visualiser extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader loader  = new FXMLLoader(getClass().getResource("visualisation-view.fxml"));
+        FXMLLoader loader  = new FXMLLoader(getClass().getResource("../visualisation-view.fxml"));
         Parent root = loader.load();
 
         this.controller = loader.getController();
 
-        primaryStage.setTitle("Task Scheduler Visualisation");
+        primaryStage.setTitle("data.Task Scheduler Visualisation");
         primaryStage.setScene(new Scene(root, 800, 525));
         primaryStage.setResizable(false);
         primaryStage.getIcons().add(new Image("logo.png"));

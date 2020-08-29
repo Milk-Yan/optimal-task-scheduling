@@ -1,3 +1,5 @@
+package data;
+
 public class Schedule {
     private Task[] tasks;
     private int finishTime;

@@ -1,4 +1,12 @@
+package solution;
+
+import data.Schedule;
+import data.Task;
+import data.TaskGraph;
+import io.IOParser;
 import org.graphstream.graph.Graph;
+import solution.helpers.Greedy;
+import solution.helpers.SequentialScheduler;
 
 import java.util.List;
 

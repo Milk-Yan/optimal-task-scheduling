@@ -1,4 +1,7 @@
-import java.lang.reflect.Array;
+package solution.helpers;
+
+import data.TaskGraph;
+
 import java.util.*;
 
 public class PreProcessor {

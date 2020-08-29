@@ -1,3 +1,11 @@
+package solution;
+
+import data.Schedule;
+import data.Task;
+import data.TaskGraph;
+import solution.helpers.PartialSchedule;
+import solution.helpers.PreProcessor;
+
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -116,7 +124,7 @@ public class SolutionParallel extends Solution {
                     continue;
                 }
 
-                // Update state (Location 1: Candidate Task)
+                // Update state (Location 1: Candidate data.Task)
                 state.remainingDuration -= taskGraph.getDuration(candidateTask);
                 List<Integer> candidateChildren = taskGraph.getChildrenList(candidateTask);
                 for (Integer candidateChild : candidateChildren) {
@@ -189,7 +197,7 @@ public class SolutionParallel extends Solution {
                     state.processorFinishTimes[candidateProcessor] = prevFinishTime;
                 }
 
-                // Backtrack state (Location 1: Candidate Task)
+                // Backtrack state (Location 1: Candidate data.Task)
                 for (Integer candidateChild : candidateChildren) {
                     // revert changes made to children
                     state.inDegrees[candidateChild]++;
@@ -207,9 +215,9 @@ public class SolutionParallel extends Solution {
     }
 
     /**
-     * Helper method to create the output Schedule.
+     * Helper method to create the output data.Schedule.
      *
-     * @return Optimal Schedule.
+     * @return Optimal data.Schedule.
      */
     private Schedule createOutput() {
         Task[] optimalSchedule = new Task[numTasks];

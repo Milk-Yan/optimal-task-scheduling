@@ -1,5 +1,9 @@
+package solution.helpers;
+
+import data.Schedule;
+import data.Task;
+import data.TaskGraph;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
 public class Greedy {
@@ -42,7 +46,7 @@ public class Greedy {
                 }
             }
 
-            // Schedule task
+            // data.Schedule task
             int finishTime = minStartTime + taskGraph.getDuration(candidate);
             finalFinishTime = Math.max(finalFinishTime, finishTime);
 

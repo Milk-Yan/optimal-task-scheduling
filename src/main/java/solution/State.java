@@ -1,4 +1,5 @@
-import java.io.*;
+package solution;
+
 import java.util.LinkedList;
 
 public class State {

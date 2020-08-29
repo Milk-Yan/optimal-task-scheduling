@@ -1,9 +1,18 @@
 import com.sun.javafx.application.PlatformImpl;
+import data.Schedule;
+import data.TaskGraph;
+import gui.Visualiser;
+import io.IOParser;
 import javafx.stage.Stage;
 import org.apache.commons.cli.*;
 import org.graphstream.graph.Graph;
 
-import java.io.IOException;
+import solution.Solution;
+import solution.SolutionParallel;
+import solution.SolutionSequential;
+import solution.VisualThread;
+import solution.helpers.Greedy;
+import solution.helpers.SequentialScheduler;
 
 public class Driver {
     static int numProcessors;
@@ -13,8 +22,8 @@ public class Driver {
 
     /**
      * Main method of the project from which everything is instantiated and run.
-     * Uses the IOParser class to create a TaskGraph object. A solution object uses the TaskGraph object to create a schedule represented by an array of Tasks.
-     * We use the IOParser to write the schedule to the output dot file.
+     * Uses the io.IOParser class to create a data.TaskGraph object. A solution object uses the data.TaskGraph object to create a schedule represented by an array of Tasks.
+     * We use the io.IOParser to write the schedule to the output dot file.
      * @param args Array of string of inputs, in order: input file name, processor count, [OPTIONAL]: (-p) number of cores,
      *             (-v) visualisation of search, (-o) name of output file
      */

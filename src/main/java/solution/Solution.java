@@ -1,4 +1,9 @@
-import java.io.IOException;
+package solution;
+
+import data.Schedule;
+import data.Task;
+import data.TaskGraph;
+
 import java.util.*;
 
 public abstract class Solution {

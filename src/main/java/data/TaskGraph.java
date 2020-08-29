@@ -1,3 +1,5 @@
+package data;
+
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
@@ -5,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The TaskGraph class encapsulates tasks and their dependencies.
+ * The data.TaskGraph class encapsulates tasks and their dependencies.
  */
 public class TaskGraph {
     private int numberOfTasks;
@@ -43,7 +45,7 @@ public class TaskGraph {
     }
 
     /**
-     * Initializes a TaskGraph object from given fields.
+     * Initializes a data.TaskGraph object from given fields.
      * Only used for testing purposes.
      */
     public TaskGraph(List<Integer>[] parentsList, List<Integer>[] childrenList, int[] durations, int[][] commCosts){

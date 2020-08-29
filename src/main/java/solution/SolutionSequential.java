@@ -1,3 +1,11 @@
+package solution;
+
+import data.Schedule;
+import data.Task;
+import data.TaskGraph;
+import solution.helpers.PartialSchedule;
+import solution.helpers.PreProcessor;
+
 import java.util.*;
 
 public class SolutionSequential extends Solution {
@@ -43,7 +51,7 @@ public class SolutionSequential extends Solution {
         if (seenSchedules.contains(hashCode)) {
             return;
         } else {
-            // Find if we can complete the tasks in Fixed Task Order (FTO)
+            // Find if we can complete the tasks in Fixed data.Task Order (FTO)
             LinkedList<Integer> ftoSorted = toFTOList(new LinkedList<>(candidateTasks));
             if (ftoSorted != null) {
                 getFTOSchedule(ftoSorted);
@@ -88,7 +96,7 @@ public class SolutionSequential extends Solution {
                 continue;
             }
 
-            // Update state (Location 1: Candidate Task)
+            // Update state (Location 1: Candidate data.Task)
             remainingDuration -= taskGraph.getDuration(candidateTask);
             List<Integer> candidateChildren = taskGraph.getChildrenList(candidateTask);
             for (Integer candidateChild : candidateChildren) {
@@ -159,7 +167,7 @@ public class SolutionSequential extends Solution {
                 processorFinishTimes[candidateProcessor] = prevFinishTime;
             }
 
-            // Backtrack state (Location 1: Candidate Task)
+            // Backtrack state (Location 1: Candidate data.Task)
             for (Integer candidateChild : candidateChildren) {
                 // revert changes made to children
                 inDegrees[candidateChild]++;
@@ -209,9 +217,9 @@ public class SolutionSequential extends Solution {
     }
 
     /**
-     * Helper method to create the output Schedule.
+     * Helper method to create the output data.Schedule.
      *
-     * @return Optimal Schedule.
+     * @return Optimal data.Schedule.
      */
     private Schedule createOutput() {
         Task[] optimalSchedule = new Task[numTasks];
@@ -239,7 +247,7 @@ public class SolutionSequential extends Solution {
     }
 
     /**
-     * Sorts the list of free tasks into Fixed Task Order if possible.
+     * Sorts the list of free tasks into Fixed data.Task Order if possible.
      * @param candidateTasks list of free tasks yet to be scheduled.
      * @return null if no FTO found, otherwise the FTO.
      */
@@ -352,7 +360,7 @@ public class SolutionSequential extends Solution {
     }
 
     /**
-     * Given a Fixed Task Order sorted list, we know that we can safely schedule the next task.
+     * Given a Fixed data.Task Order sorted list, we know that we can safely schedule the next task.
      * This method will schedule in FTO order.
      * @param ftoSortedList the FTO sorted list.
      */

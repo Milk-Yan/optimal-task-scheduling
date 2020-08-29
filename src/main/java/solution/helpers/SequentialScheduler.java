@@ -1,5 +1,9 @@
+package solution.helpers;
+
+import data.Schedule;
+import data.Task;
+import data.TaskGraph;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
 /**
