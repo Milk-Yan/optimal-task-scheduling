@@ -8,3 +8,5 @@ For more info on each of these aspects, see below:
 - [Optimal Scheduling](./Optimal_Scheduling.md)
 - [Visualisation](./Visualisation.md)
 - [Parallelisation](./Parallelisation.md)
+- [Testing](./Testing.md)
+
