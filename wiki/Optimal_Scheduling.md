@@ -85,12 +85,6 @@ Since our search space is exponential, we need to find methods to prune this sea
     If you hash a stack, its hashcode is dependent on the order of things in the stack, when you hash a set, the order doesn't effect the hashcode. This means that, we can detect duplication that arises from swapping the tasks that have been scheduled on two processors. 
     
     In our algorithm, we keep the hash codes of different states and check whether the current state is a duplicate of one that we have searched before.
-    
-* #### Node equivalence
-    Two nodes are equivalent if they have the same duration, they have the same parents and children, and the edge costs between their parents and children are the same. 
-    
-    For a given state, there is no point in scheduling two identical tasks on the same processor. In our algorithm, when considering if to schedule a task on a processor, we check to see if we have already scheduled an equivalent task.
-    
 
 * #### Processor Normalization
     Two processors are isomorphic if they do not have any tasks scheduled on them. Scheduling a task on multiple isomorphic processors produces the same resultant state.
