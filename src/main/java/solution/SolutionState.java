@@ -2,7 +2,7 @@ package solution;
 
 import java.util.LinkedList;
 
-public class State {
+public class SolutionState {
 
     LinkedList<Integer> candidateTasks; // list of free tasks
     protected int[] inDegrees; // inDegrees[i] => number of unscheduled parent tasks of task i
@@ -11,8 +11,8 @@ public class State {
     protected int[] processorFinishTimes; // processorFinishTimes[i] => finishing time of the last task scheduled on processor i
     protected int remainingDuration = 0; // total duration of remaining tasks to be scheduled (used for pruning)\
 
-    public State(LinkedList<Integer> candidateTasks, int[] inDegrees, int[] taskStartTimes,
-                 int[] scheduledOn, int[] processorFinishTimes, int remainingDuration) {
+    public SolutionState(LinkedList<Integer> candidateTasks, int[] inDegrees, int[] taskStartTimes,
+                         int[] scheduledOn, int[] processorFinishTimes, int remainingDuration) {
         this.candidateTasks = candidateTasks;
         this.inDegrees = inDegrees;
         this.taskStartTimes = taskStartTimes;
@@ -21,7 +21,7 @@ public class State {
         this.remainingDuration = remainingDuration;
     }
 
-    public State getDeepCopy() {
+    public SolutionState getDeepCopy() {
         int n = inDegrees.length;
         int[] inDegreeDuplicate = new int[n];
         int[] taskStartTimesDuplicate = new int[n];
@@ -39,7 +39,7 @@ public class State {
             processorFinishTimesDuplicate[i] = processorFinishTimes[i];
         }
         LinkedList<Integer> candidateTasksDuplicate = new LinkedList<>(candidateTasks);
-        State duplicate = new State(candidateTasksDuplicate, inDegreeDuplicate, taskStartTimesDuplicate,
+        SolutionState duplicate = new SolutionState(candidateTasksDuplicate, inDegreeDuplicate, taskStartTimesDuplicate,
                 scheduledOnDuplicate, processorFinishTimesDuplicate, remainingDurationDuplicate);
 
         return duplicate;
