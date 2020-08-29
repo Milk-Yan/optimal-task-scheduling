@@ -33,8 +33,9 @@ public class SolutionSequential extends Solution {
     }
 
     /**
-     * Recursively try to schedule a task on a processor.
-     * Uses DFS to try all possible schedules.
+     * This method recursively tries to schedule tasks on processors.
+     *
+     * @param candidateTasks a list of tasks that are currently available to be scheduled
      */
     private void recursiveSearch(LinkedList<Integer> candidateTasks) {
         updateStateCount();

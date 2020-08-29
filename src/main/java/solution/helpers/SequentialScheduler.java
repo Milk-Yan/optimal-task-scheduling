@@ -13,12 +13,17 @@ import java.util.Queue;
  * such that all parents finish before their children.
  */
 public class SequentialScheduler {
-    private TaskGraph taskGraph;
+    private TaskGraph taskGraph; //Contains information about the DAG
 
     public SequentialScheduler(TaskGraph taskGraph) {
         this.taskGraph = taskGraph;
     }
 
+    /**
+     * This method gets the optimal solution for when the number of processors is exactly 1.
+     *
+     * @return Schedule, the optimal schedule when only one processor can be used to schedule tasks on.
+     */
     public Schedule getSchedule() {
         int numTasks = taskGraph.getNumberOfTasks();
         int finishTime = 0;

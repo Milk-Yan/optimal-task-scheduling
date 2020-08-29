@@ -9,6 +9,11 @@ import solution.helpers.PreProcessor;
 import java.util.*;
 import java.util.concurrent.*;
 
+/**
+ * The SolutionParallell class contains the code to find and return a optimal schedule for a given DAG. It makes uses of a
+ * predefined amount of threads for its computation. It extends Solution with contains all the global variables and the
+ * information about the given DAG.
+ */
 public class SolutionParallel extends Solution {
     private ForkJoinPool forkJoinPool;
 
@@ -35,7 +40,13 @@ public class SolutionParallel extends Solution {
         return createOutput();
     }
 
+    /**
+     * Inner RecursiveSearch class. This class represents an amount of work that must be done in the form of a state
+     * that must be searched. A thread from the ForkJoinPool can execute the compute method which specifies the
+     * work that it must do.
+     */
     private class RecursiveSearch extends RecursiveAction {
+
         private SolutionState solutionState;
 
         private RecursiveSearch(SolutionState solutionState) {
@@ -43,8 +54,8 @@ public class SolutionParallel extends Solution {
         }
 
         /**
-         * Recursively try to schedule a task on a processor.
-         * Uses DFS to try all possible schedules.
+         * The compute is where a thread will start its work. This method searches a state, and recursively creates more
+         * work/tasks/states to search.
          */
         @Override
         protected void compute() {
