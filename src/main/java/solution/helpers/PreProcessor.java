@@ -107,7 +107,6 @@ public class PreProcessor {
      * @return
      */
     private static boolean compare(int a, int b, TaskGraph taskGraph){
-        //If two nodes do not have the same duration, they are not equivalent.
         if(taskGraph.getDuration(a) != taskGraph.getDuration(b)) {
             return false;
         }
@@ -121,26 +120,25 @@ public class PreProcessor {
         if((aParents.size() != bParents.size()) || (aChildren.size() != bChildren.size())){
             return false;
         }
-
-        //Check if task a and b have the same parents and the same children and all the corresponding edges are the same
-        //weights. 
-        int numTasks = taskGraph.getNumberOfTasks();
-        boolean[][] parentsAdjacencyMatrix = taskGraph.getParentsAdjacencyMatrix();
-        boolean[][] childrenAdjacencyMatrix = taskGraph.getChildrenAdjacencyMatrix();
-        for(int i = 0; i < numTasks; i++){
-            if(parentsAdjacencyMatrix[a][i] != parentsAdjacencyMatrix[b][i] || childrenAdjacencyMatrix[a][i] != childrenAdjacencyMatrix[b][i]){
+        Collections.sort(aParents);
+        Collections.sort(bParents);
+        for(int i = 0; i<aParents.size(); i++){
+            int aParent = aParents.get(i);
+            int bParent = bParents.get(i);
+            if((aParent != bParent) ||taskGraph.getCommCost(aParent, a) != taskGraph.getCommCost(bParent, b)){
                 return false;
             }
-            if(parentsAdjacencyMatrix[a][i]) {
-                return taskGraph.getCommCost(i,a) == taskGraph.getCommCost(i,b);
-            }
-            if(childrenAdjacencyMatrix[a][i]) {
-                return taskGraph.getCommCost(a,i) == taskGraph.getCommCost(b,i);
+        }
+        Collections.sort(aChildren);
+        Collections.sort(bChildren);
+        for(int i = 0; i<aChildren.size(); i++){
+            int aChild = aChildren.get(i);
+            int bChild= bChildren.get(i);
+            if( (aChild != bChild) || taskGraph.getCommCost(a, aChild) != taskGraph.getCommCost(b, bChild)){
+                return false;
             }
         }
 
         return true;
     }
-
-
 }
