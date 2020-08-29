@@ -10,7 +10,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 
-import solution.VisualThread;
+import solution.SolutionThread;
 import java.util.*;
 
 /**
@@ -47,20 +47,20 @@ public class Controller {
 
     private int numProcessors;
 
-    private VisualThread visualThread; // thread on which the algorithm runs
+    private SolutionThread solutionThread; // thread on which the algorithm runs
     private Timer poller; // timer which polls the algorithm
     private Timer timer; // timer for displaying the run time
 
     /**
      * This method sets up initial values for labels in the GUI, along with any other information it needs.
-     * @param visualThread thread on which the algorithm runs
+     * @param solutionThread thread on which the algorithm runs
      * @param numProcessors number of processors
      * @param inputGraphName name of the input file
      * @param numTasks number of tasks (nodes) in the input file
      * @param numThreads number of threads the solution is being run on
      */
-    public void setUpArgs(VisualThread visualThread, int numProcessors, String inputGraphName, int numTasks, int numThreads) {
-        this.visualThread = visualThread;
+    public void setUpArgs(SolutionThread solutionThread, int numProcessors, String inputGraphName, int numTasks, int numThreads) {
+        this.solutionThread = solutionThread;
         inputGraphLabel.setText(inputGraphName);
         totalTasksLabel.setText(numTasks + "");
         threadCountLabel.setText(numThreads + "");
@@ -88,22 +88,22 @@ public class Controller {
         setStatusRunning();
 
         // Start the algorithm
-        visualThread.start();
+        solutionThread.start();
         poller = new Timer();
         poller.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 // Get information from GUI thread via polling
-                long stateCount = visualThread.getStateCount();
-                boolean isDone = visualThread.isDone();
+                long stateCount = solutionThread.getStateCount();
+                boolean isDone = solutionThread.isDone();
 
                 // Run GUI changes in application thread
                 Platform.runLater(() -> {
                     updateStateCountLabel(stateCount);
                     // Only update if change is detected
-                    if (visualThread.getBestChanged()) {
-                        currentBestLabel.setText(visualThread.getCurrentBest() + "");
-                        updateStackedBarChart(visualThread.getBestSchedule());
+                    if (solutionThread.getBestChanged()) {
+                        currentBestLabel.setText(solutionThread.getCurrentBest() + "");
+                        updateStackedBarChart(solutionThread.getBestSchedule());
                     }
                     if (isDone) {
                         stop();

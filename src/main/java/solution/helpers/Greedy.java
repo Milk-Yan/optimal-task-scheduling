@@ -57,7 +57,7 @@ public class Greedy {
             int finishTime = minStartTime + taskGraph.getDuration(candidate);
             finalFinishTime = Math.max(finalFinishTime, finishTime);
 
-            output[candidate] = new Task(candidate, minStartTime, finishTime, minProcessor);
+            output[candidate] = new Task(minStartTime, finishTime, minProcessor);
 
             // Update earliest schedule times for children
             for (int child: taskGraph.getChildrenList(candidate)) {

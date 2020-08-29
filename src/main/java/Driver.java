@@ -10,7 +10,7 @@ import org.graphstream.graph.Graph;
 import solution.Solution;
 import solution.SolutionParallel;
 import solution.SolutionSequential;
-import solution.VisualThread;
+import solution.SolutionThread;
 import solution.helpers.Greedy;
 import solution.helpers.SequentialScheduler;
 
@@ -41,10 +41,14 @@ public class Driver {
         numProcessors = getNumProcessors(args);
         final String outputFilePath = getOutputFilePath(cmd);
 
+        // Read input file
+        Graph dotGraph = IOParser.read(fileName);
+        taskGraph = new TaskGraph(dotGraph);
+
         // Choose to run either the sequential or the parallel version.
         Solution solution;
         if(cmd.hasOption("p")){
-            solution = new SolutionParallel();
+            solution = new SolutionParallel(taskGraph, numProcessors);
             try {
                 numThreads = Integer.parseInt(cmd.getOptionValue('p'));
                 ((SolutionParallel) solution).setNumCores(numThreads);
@@ -53,12 +57,8 @@ public class Driver {
                 System.exit(1);
             }
         } else {
-            solution = new SolutionSequential();
+            solution = new SolutionSequential(taskGraph, numProcessors);
         }
-
-        // Read input file
-        Graph dotGraph = IOParser.read(fileName);
-        taskGraph = new TaskGraph(dotGraph);
 
         // Choose whether to run visualisation.
         if(cmd.hasOption('v')) {
@@ -143,13 +143,13 @@ public class Driver {
     private static void runVisual(Solution solution, String outputFilePath, Graph dotGraph) {
         PlatformImpl.startup(() -> {
             Visualiser visualiser = new Visualiser();
-            VisualThread visualThread = new VisualThread(solution, taskGraph, numProcessors, outputFilePath, dotGraph);
+            SolutionThread solutionThread = new SolutionThread(solution, taskGraph, numProcessors, outputFilePath, dotGraph);
             try {
                 visualiser.start(new Stage());
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            visualiser.setUpArgs(visualThread, numProcessors, fileName, taskGraph.getNumberOfTasks(), numThreads);
+            visualiser.setUpArgs(solutionThread, numProcessors, fileName, taskGraph.getNumberOfTasks(), numThreads);
         });
     }
 
@@ -161,31 +161,31 @@ public class Driver {
      */
     private static void runNonVisual(Solution solution, String outputFilePath, Graph dotGraph) {
         Schedule result;
-        Schedule greedySchedule = null;
 
         // if the number of processors is one, then the optimal solution is just everything run
         // sequentially.
         if (numProcessors == 1) {
             SequentialScheduler scheduler = new SequentialScheduler(taskGraph);
             result = scheduler.getSchedule();
+            solution.setInitialSchedule(result);
         } else {
             // Run greedy algorithm to determine lower bound of optimal solution
             Greedy g = new Greedy();
-            greedySchedule = g.run(taskGraph, numProcessors);
+            result = g.run(taskGraph, numProcessors);
+            solution.setInitialSchedule(result);
 
             // Run algorithm to find optimal schedule
             long startTime = System.currentTimeMillis();
-            result = solution.run(taskGraph, numProcessors, greedySchedule.getFinishTime());
+            Schedule optimalResult = solution.run();
+
+            if (optimalResult.getFinishTime() < result.getFinishTime()) {
+                result = optimalResult;
+            }
+
             System.out.println("Program ran in: " + (System.currentTimeMillis() - startTime) + "ms");
+            System.out.println("Best schedule has finishing time of " + result.getFinishTime());
         }
 
-        // Our solution ignores all schedules that are >= than the greedy schedule,
-        // so this is to ensure if nothing is faster, we return the greedy schedule.
-        if (greedySchedule != null && result.getFinishTime() >= greedySchedule.getFinishTime()) {
-            IOParser.write(outputFilePath, dotGraph, greedySchedule.getTasks());
-        } else {
-            IOParser.write(outputFilePath, dotGraph, result.getTasks());
-        }
-        System.exit(0);
+        IOParser.write(outputFilePath, dotGraph, result);
     }
 }

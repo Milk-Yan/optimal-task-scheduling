@@ -3,14 +3,14 @@ package solution;
 import data.Schedule;
 import data.Task;
 import data.TaskGraph;
-import solution.helpers.PartialSchedule;
+import solution.helpers.PartialScheduleHashGenerator;
 import solution.helpers.PreProcessor;
 
 import java.util.*;
 import java.util.concurrent.*;
 
 /**
- * The SolutionParallell class contains the code to find and return a optimal schedule for a given DAG. It makes uses of a
+ * The SolutionParallel class contains the code to find and return a optimal schedule for a given DAG. It makes uses of a
  * predefined amount of threads for its computation. It extends Solution with contains all the global variables and the
  * information about the given DAG.
  */
@@ -22,18 +22,22 @@ public class SolutionParallel extends Solution {
     }
 
     /**
-     * Creates an optimal scheduling of tasks on specified number of processors.
-     *
      * @param taskGraph      Graph containing tasks as nodes and their dependencies as edges.
      * @param numProcessors  Number of processors to schedule the tasks on.
-     * @param upperBoundTime Upper bound of running time that the optimal solution should do at least as good as.
+     */
+    public SolutionParallel (TaskGraph taskGraph, int numProcessors) {
+        super(taskGraph, numProcessors);
+    }
+
+    /**
+     * Creates an optimal scheduling of tasks on specified number of processors.
      * @return optimal schedule found by the run method.
      */
-    public Schedule run(TaskGraph taskGraph, int numProcessors, int upperBoundTime) {
-        initializeGlobalVars(taskGraph, numProcessors, upperBoundTime);
-        SolutionState initialSolutionState = initializeState(taskGraph, numProcessors);
+    public Schedule run() {
+        initializeGlobalVars(taskGraph, numProcessors);
+        SearchState initialSearchState = initializeState(taskGraph, numProcessors);
 
-        RecursiveSearch recursiveSearch = new RecursiveSearch(initialSolutionState);
+        RecursiveSearch recursiveSearch = new RecursiveSearch(initialSearchState);
         forkJoinPool.invoke(recursiveSearch);
 
         setDone();
@@ -47,10 +51,10 @@ public class SolutionParallel extends Solution {
      */
     private class RecursiveSearch extends RecursiveAction {
 
-        private SolutionState solutionState;
+        private SearchState searchState;
 
-        private RecursiveSearch(SolutionState solutionState) {
-            this.solutionState = solutionState;
+        private RecursiveSearch(SearchState searchState) {
+            this.searchState = searchState;
         }
 
         /**
@@ -62,8 +66,8 @@ public class SolutionParallel extends Solution {
             updateStateCount();
 
             // Base case is when queue is empty, i.e. all tasks scheduled.
-            if (solutionState.candidateTasks.isEmpty()) {
-                int finishTime = findMaxInArray(solutionState.processorFinishTimes);
+            if (searchState.candidateTasks.isEmpty()) {
+                int finishTime = findMaxInArray(searchState.processorFinishTimes);
 
                 synchronized (this) {
                     //If schedule time is better, update bestFinishTime and best schedule
@@ -71,8 +75,8 @@ public class SolutionParallel extends Solution {
                         bestFinishTime = finishTime;
 
                         for (int i = 0; i < bestStartTime.length; i++) {
-                            bestScheduledOn[i] = solutionState.scheduledOn[i];
-                            bestStartTime[i] = solutionState.taskStartTimes[i];
+                            bestScheduledOn[i] = searchState.scheduledOn[i];
+                            bestStartTime[i] = searchState.taskStartTimes[i];
                         }
                         updateBestScheduleOnVisual();
                     }
@@ -82,7 +86,7 @@ public class SolutionParallel extends Solution {
 
             // Create a hash code for our partial schedule to check whether we have examined an equivalent schedule before
             // If we have seen an equivalent schedule we do not need to proceed
-            int hashCode = PartialSchedule.generateHashCode(solutionState.taskStartTimes, solutionState.scheduledOn, numProcessors);
+            int hashCode = PartialScheduleHashGenerator.generateHashCode(searchState.taskStartTimes, searchState.scheduledOn, numProcessors);
             synchronized (this) {
                 if (seenSchedules.contains(hashCode)) {
                     return;
@@ -93,17 +97,17 @@ public class SolutionParallel extends Solution {
 
             // Information we need about the current schedule
             // minimal remaining time IF all remaining tasks are evenly distributed amongst processors.
-            int loadBalancedRemainingTime = (int) Math.ceil(solutionState.remainingDuration / (double) numProcessors);
+            int loadBalancedRemainingTime = (int) Math.ceil(searchState.remainingDuration / (double) numProcessors);
 
             int earliestProcessorFinishTime = Integer.MAX_VALUE;
             int latestProcessorFinishTime = 0;
             for (int l = 0; l < numProcessors; l++) {
-                earliestProcessorFinishTime = Math.min(solutionState.processorFinishTimes[l], earliestProcessorFinishTime);
-                latestProcessorFinishTime = Math.max(solutionState.processorFinishTimes[l], latestProcessorFinishTime);
+                earliestProcessorFinishTime = Math.min(searchState.processorFinishTimes[l], earliestProcessorFinishTime);
+                latestProcessorFinishTime = Math.max(searchState.processorFinishTimes[l], latestProcessorFinishTime);
             }
 
             int longestCriticalPath = 0;
-            for (int task : solutionState.candidateTasks) {
+            for (int task : searchState.candidateTasks) {
                 int criticalPath = maxLengthToExitNode[task];
                 if (criticalPath > longestCriticalPath) {
                     longestCriticalPath = criticalPath;
@@ -111,14 +115,14 @@ public class SolutionParallel extends Solution {
             }
 
             // Iterate through tasks
-            solutionState.candidateTasks.sort(Comparator.comparingInt(a -> nodePriorities[a]));
+            searchState.candidateTasks.sort(Comparator.comparingInt(a -> nodePriorities[a]));
             HashSet<Integer> seenTasks = new HashSet<>();
-            for (int i = 0; i < solutionState.candidateTasks.size(); i++) {
+            for (int i = 0; i < searchState.candidateTasks.size(); i++) {
                 List<RecursiveSearch> executableList = new ArrayList<>();
 
-                int candidateTask = solutionState.candidateTasks.remove();
+                int candidateTask = searchState.candidateTasks.remove();
                 if (seenTasks.contains(candidateTask)) {
-                    solutionState.candidateTasks.add(candidateTask);
+                    searchState.candidateTasks.add(candidateTask);
                     continue;
                 } else {
                     ArrayList<Integer> equivalentNodes = equivalentNodesList[candidateTask];
@@ -135,17 +139,17 @@ public class SolutionParallel extends Solution {
                     latestFinishTimeConstraint = latestProcessorFinishTime >= bestFinishTime;
                 }
                 if (loadBalancingConstraint || criticalPathConstraint || latestFinishTimeConstraint) {
-                    solutionState.candidateTasks.add(candidateTask);
+                    searchState.candidateTasks.add(candidateTask);
                     continue;
                 }
 
                 // Update state (Location 1: Candidate data.Task)
-                solutionState.remainingDuration -= taskGraph.getDuration(candidateTask);
+                searchState.remainingDuration -= taskGraph.getDuration(candidateTask);
                 List<Integer> candidateChildren = taskGraph.getChildrenList(candidateTask);
                 for (Integer candidateChild : candidateChildren) {
-                    solutionState.inDegrees[candidateChild]--;
-                    if (solutionState.inDegrees[candidateChild] == 0) {
-                        solutionState.candidateTasks.add(candidateChild);
+                    searchState.inDegrees[candidateChild]--;
+                    if (searchState.inDegrees[candidateChild] == 0) {
+                        searchState.candidateTasks.add(candidateChild);
                     }
                 }
 
@@ -155,16 +159,16 @@ public class SolutionParallel extends Solution {
                 int secondMaxDataArrival = 0;
                 List<Integer> parents = taskGraph.getParentsList(candidateTask);
                 for (int parent : parents) {
-                    int dataArrival = solutionState.taskStartTimes[parent] + taskGraph.getDuration(parent) + taskGraph.getCommCost(parent, candidateTask);
+                    int dataArrival = searchState.taskStartTimes[parent] + taskGraph.getDuration(parent) + taskGraph.getCommCost(parent, candidateTask);
                     if (dataArrival >= maxDataArrival) {
-                        if (solutionState.scheduledOn[parent] != processorCausingMaxDataArrival) {
+                        if (searchState.scheduledOn[parent] != processorCausingMaxDataArrival) {
                             secondMaxDataArrival = maxDataArrival;
                         }
                         maxDataArrival = dataArrival;
-                        processorCausingMaxDataArrival = solutionState.scheduledOn[parent];
+                        processorCausingMaxDataArrival = searchState.scheduledOn[parent];
 
                     } else if (dataArrival >= secondMaxDataArrival) {
-                        if (solutionState.scheduledOn[parent] != processorCausingMaxDataArrival) {
+                        if (searchState.scheduledOn[parent] != processorCausingMaxDataArrival) {
                             secondMaxDataArrival = dataArrival;
                         }
                     }
@@ -173,7 +177,7 @@ public class SolutionParallel extends Solution {
                 boolean hasBeenScheduledAtStart = false;
                 for (int candidateProcessor = 0; candidateProcessor < numProcessors; candidateProcessor++) { // Iterate through processors
                     // Avoid processor isomorphism
-                    if (solutionState.processorFinishTimes[candidateProcessor] == 0) {
+                    if (searchState.processorFinishTimes[candidateProcessor] == 0) {
                         if (hasBeenScheduledAtStart) {
                             // Skip duplicated search space
                             continue;
@@ -183,7 +187,7 @@ public class SolutionParallel extends Solution {
                     }
 
                     // Find earliest time to schedule candidate task on candidate processor
-                    int earliestStartTimeOnCurrentProcessor = solutionState.processorFinishTimes[candidateProcessor];
+                    int earliestStartTimeOnCurrentProcessor = searchState.processorFinishTimes[candidateProcessor];
                     if (processorCausingMaxDataArrival != candidateProcessor) {
                         earliestStartTimeOnCurrentProcessor = Math.max(earliestStartTimeOnCurrentProcessor, maxDataArrival);
                     } else {
@@ -199,30 +203,30 @@ public class SolutionParallel extends Solution {
                     }
 
                     // Update state (Location 2: Processors)
-                    int prevFinishTime = solutionState.processorFinishTimes[candidateProcessor];
-                    solutionState.processorFinishTimes[candidateProcessor] = earliestStartTimeOnCurrentProcessor + taskGraph.getDuration(candidateTask);
-                    solutionState.scheduledOn[candidateTask] = candidateProcessor;
-                    solutionState.taskStartTimes[candidateTask] = earliestStartTimeOnCurrentProcessor;
+                    int prevFinishTime = searchState.processorFinishTimes[candidateProcessor];
+                    searchState.processorFinishTimes[candidateProcessor] = earliestStartTimeOnCurrentProcessor + taskGraph.getDuration(candidateTask);
+                    searchState.scheduledOn[candidateTask] = candidateProcessor;
+                    searchState.taskStartTimes[candidateTask] = earliestStartTimeOnCurrentProcessor;
 
                     RecursiveSearch recursiveSearch;
-                    recursiveSearch = new RecursiveSearch(solutionState.getDeepCopy());
+                    recursiveSearch = new RecursiveSearch(searchState.getDeepCopy());
                     executableList.add(recursiveSearch);
 
                     // Backtrack state (Location 2: Processors)
-                    solutionState.processorFinishTimes[candidateProcessor] = prevFinishTime;
+                    searchState.processorFinishTimes[candidateProcessor] = prevFinishTime;
                 }
 
                 // Backtrack state (Location 1: Candidate data.Task)
                 for (Integer candidateChild : candidateChildren) {
                     // revert changes made to children
-                    solutionState.inDegrees[candidateChild]++;
-                    if (solutionState.inDegrees[candidateChild] == 1) {
-                        solutionState.candidateTasks.removeLast();
+                    searchState.inDegrees[candidateChild]++;
+                    if (searchState.inDegrees[candidateChild] == 1) {
+                        searchState.candidateTasks.removeLast();
                     }
                 }
-                solutionState.remainingDuration += taskGraph.getDuration(candidateTask);
-                solutionState.candidateTasks.add(candidateTask);
-                solutionState.taskStartTimes[candidateTask] = -1;
+                searchState.remainingDuration += taskGraph.getDuration(candidateTask);
+                searchState.candidateTasks.add(candidateTask);
+                searchState.taskStartTimes[candidateTask] = -1;
                 ForkJoinTask.invokeAll(executableList);
             }
         }
@@ -237,7 +241,7 @@ public class SolutionParallel extends Solution {
     private Schedule createOutput() {
         Task[] optimalSchedule = new Task[numTasks];
         for (int i = 0; i < numTasks; i++) {
-            Task t = new Task(i, bestStartTime[i],
+            Task t = new Task(bestStartTime[i],
                     bestStartTime[i] + taskGraph.getDuration(i), bestScheduledOn[i]);
             optimalSchedule[i] = t;
         }
@@ -262,13 +266,11 @@ public class SolutionParallel extends Solution {
     /**
      * Helper method to initialize variables used by all threads.
      */
-    private void initializeGlobalVars(TaskGraph taskGraph, int numProcessors, int upperBoundTime) {
+    private void initializeGlobalVars(TaskGraph taskGraph, int numProcessors) {
         this.taskGraph = taskGraph;
         this.numProcessors = numProcessors;
         maxLengthToExitNode = PreProcessor.maxLengthToExitNode(taskGraph);
         nodePriorities = maxLengthToExitNode;
-        bestFinishTime = upperBoundTime;
-        updateBestScheduleOnVisual();
         numTasks = taskGraph.getNumberOfTasks();
         equivalentNodesList = PreProcessor.getNodeEquivalence(taskGraph);
         bestStartTime = new int[numTasks];
@@ -278,7 +280,7 @@ public class SolutionParallel extends Solution {
     /**
      * Helper method to create the initial state on which the algorithm runs.
      */
-    private SolutionState initializeState(TaskGraph taskGraph, int numProcessors) {
+    private SearchState initializeState(TaskGraph taskGraph, int numProcessors) {
         LinkedList<Integer> candidateTasks = new LinkedList<>();
         int[] inDegrees = new int[numTasks];
         int[] taskStartTimes = new int[numTasks];
@@ -294,7 +296,7 @@ public class SolutionParallel extends Solution {
                 candidateTasks.add(i);
             }
         }
-        return new SolutionState(candidateTasks, inDegrees, taskStartTimes,
+        return new SearchState(candidateTasks, inDegrees, taskStartTimes,
                 scheduledOn, processorFinishTimes, remainingDuration);
     }
 }

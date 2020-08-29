@@ -5,13 +5,13 @@ import java.util.Set;
 import java.util.Stack;
 
 /**
- * The PartialSchedule class encapsulates the logic behind creating a unique hashcode to represent partial schedules.
+ * The PartialScheduleHashGenerator class encapsulates the logic behind creating a unique hashcode to represent partial schedules.
  *
  * The hashcode of partial schedules are added to a set, so we can check whether we have already visited an equivalent state.
  * This allows us to prune the equivalent states as we can immediately return when the hashcode of a state we are exploring
  * matches a hashcode already in the set.
  */
-public class PartialSchedule {
+public class PartialScheduleHashGenerator {
 
      /**
      * Generates a hashcode that represents a partial schedule.

@@ -2,6 +2,7 @@ package io;
 
 import java.io.IOException;
 
+import data.Schedule;
 import data.Task;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -45,12 +46,13 @@ public class IOParser {
      * Writes a set of results to the output dot file.
      * @param outputFileName The name of the output dot file.
      * @param dotGraph Graph object that encapsulates the initial tasks and their dependencies.
-     * @param result List of scheduled tasks.
+     * @param schedule Schedule to write to file.
      */
-    public static void write(String outputFileName, Graph dotGraph, Task[] result) {
+    public static void write(String outputFileName, Graph dotGraph, Schedule schedule) {
+        Task[] tasks = schedule.getTasks();
         for(int i = 0; i < dotGraph.getNodeCount(); i++){
             Node node = dotGraph.getNode(i);
-            Task task = result[i];
+            Task task = tasks[i];
             node.setAttribute("Weight", task.getFinishTime() - task.getStartTime());
             node.setAttribute("Start", task.getStartTime());
             // the output uses processor numbers from 1, but the data is stored from 0

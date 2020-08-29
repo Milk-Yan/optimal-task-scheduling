@@ -3,7 +3,7 @@ package solution;
 import data.Schedule;
 import data.Task;
 import data.TaskGraph;
-import solution.helpers.PartialSchedule;
+import solution.helpers.PartialScheduleHashGenerator;
 import solution.helpers.PreProcessor;
 
 import java.util.*;
@@ -16,18 +16,20 @@ public class SolutionSequential extends Solution {
     private int remainingDuration = 0; // total duration of remaining tasks to be scheduled (used for pruning)
 
     /**
-     * Creates an optimal scheduling of tasks on specified number of processors.
-     *
      * @param taskGraph      Graph containing tasks as nodes and their dependencies as edges.
      * @param numProcessors  Number of processors to schedule the tasks on.
-     * @param upperBoundTime Upper bound of running time that the optimal solution should do at least as good as.
+     */
+    public SolutionSequential (TaskGraph taskGraph, int numProcessors) {
+        super(taskGraph, numProcessors);
+    }
+
+    /**
+     * Creates an optimal scheduling of tasks on specified number of processors.
      * @return optimal schedule found by the run method.
      */
-    public Schedule run(TaskGraph taskGraph, int numProcessors, int upperBoundTime) {
-        LinkedList<Integer> candidateTasks = initialize(taskGraph, numProcessors, upperBoundTime);
-
+    public Schedule run() {
+        LinkedList<Integer> candidateTasks = initialize(taskGraph, numProcessors);
         recursiveSearch(candidateTasks);
-        System.out.println("Our optimal schedule finishes in " + bestFinishTime);
         setDone();
         return createOutput();
     }
@@ -48,7 +50,7 @@ public class SolutionSequential extends Solution {
 
         // Create a hash code for our partial schedule to check whether we have examined an equivalent schedule before
         // If we have seen an equivalent schedule we do not need to proceed
-        int hashCode = PartialSchedule.generateHashCode(taskStartTimes, scheduledOn, numProcessors);
+        int hashCode = PartialScheduleHashGenerator.generateHashCode(taskStartTimes, scheduledOn, numProcessors);
         if (seenSchedules.contains(hashCode)) {
             return;
         } else {
@@ -185,12 +187,11 @@ public class SolutionSequential extends Solution {
     /**
      * Helper method to initialize all the fields required for the solution.
      */
-    private LinkedList<Integer> initialize(TaskGraph taskGraph, int numProcessors, int upperBoundTime) {
+    private LinkedList<Integer> initialize(TaskGraph taskGraph, int numProcessors) {
         this.taskGraph = taskGraph;
         this.numProcessors = numProcessors;
 
         maxLengthToExitNode = PreProcessor.maxLengthToExitNode(taskGraph);
-        bestFinishTime = upperBoundTime;
         numTasks = taskGraph.getNumberOfTasks();
 
         nodePriorities = maxLengthToExitNode;
@@ -225,7 +226,7 @@ public class SolutionSequential extends Solution {
     private Schedule createOutput() {
         Task[] optimalSchedule = new Task[numTasks];
         for (int i = 0; i < numTasks; i++) {
-            Task t = new Task(i, bestStartTime[i],
+            Task t = new Task(bestStartTime[i],
                     bestStartTime[i] + taskGraph.getDuration(i), bestScheduledOn[i]);
             optimalSchedule[i] = t;
         }
@@ -375,7 +376,7 @@ public class SolutionSequential extends Solution {
 
         // Create a hash code for our partial schedule to check whether we have examined an equivalent schedule before
         // If we have seen an equivalent schedule we do not need to proceed
-        int hashCode = PartialSchedule.generateHashCode(taskStartTimes, scheduledOn, numProcessors);
+        int hashCode = PartialScheduleHashGenerator.generateHashCode(taskStartTimes, scheduledOn, numProcessors);
         if (seenSchedules.contains(hashCode)) {
             return;
         } else {

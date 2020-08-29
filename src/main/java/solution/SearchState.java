@@ -3,9 +3,9 @@ package solution;
 import java.util.LinkedList;
 
 /**
- * The SolutionState class stores data which represents the current state of the search.
+ * The SearchState class stores data which represents the current state of the search.
  */
-public class SolutionState {
+public class SearchState {
 
     LinkedList<Integer> candidateTasks; // Tasks that can currently be scheduled: they are unscheduled, and have no unscheduled parent tasks
     protected int[] inDegrees; // inDegrees[i] => number of unscheduled parent tasks of task i
@@ -14,8 +14,8 @@ public class SolutionState {
     protected int[] processorFinishTimes; // processorFinishTimes[i] => finishing time of the last task scheduled on processor i
     protected int remainingDuration = 0; // Sum of weights of unscheduled tasks
 
-    public SolutionState(LinkedList<Integer> candidateTasks, int[] inDegrees, int[] taskStartTimes,
-                         int[] scheduledOn, int[] processorFinishTimes, int remainingDuration) {
+    public SearchState(LinkedList<Integer> candidateTasks, int[] inDegrees, int[] taskStartTimes,
+                       int[] scheduledOn, int[] processorFinishTimes, int remainingDuration) {
         this.candidateTasks = candidateTasks;
         this.inDegrees = inDegrees;
         this.taskStartTimes = taskStartTimes;
@@ -25,10 +25,10 @@ public class SolutionState {
     }
 
      /**
-     * Creates a deep copy of a SolutionState. This is used for multithreading.
-     * @return SolutionState deep copy of this SolutionState instance.
+     * Creates a deep copy of a SearchState. This is used for multithreading.
+     * @return SearchState deep copy of this SearchState instance.
      */
-    public SolutionState getDeepCopy() {
+    public SearchState getDeepCopy() {
         int n = inDegrees.length;
         int[] inDegreeDuplicate = new int[n];
         int[] taskStartTimesDuplicate = new int[n];
@@ -46,7 +46,7 @@ public class SolutionState {
             processorFinishTimesDuplicate[i] = processorFinishTimes[i];
         }
         LinkedList<Integer> candidateTasksDuplicate = new LinkedList<>(candidateTasks);
-        SolutionState duplicate = new SolutionState(candidateTasksDuplicate, inDegreeDuplicate, taskStartTimesDuplicate,
+        SearchState duplicate = new SearchState(candidateTasksDuplicate, inDegreeDuplicate, taskStartTimesDuplicate,
                 scheduledOnDuplicate, processorFinishTimesDuplicate, remainingDurationDuplicate);
 
         return duplicate;

@@ -6,7 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import solution.VisualThread;
+import solution.SolutionThread;
 
 /**
  * Visualiser is run on the main thread and is responsible for loading the stage in which
@@ -36,9 +36,9 @@ public class Visualiser extends Application {
 
     /**
      * This method sets up required fields in the controller object which is then shown on the GUI.
-     * @param visualThread the thread in which the solution is run. Used to communicate with the GUI.
+     * @param solutionThread the thread in which the solution is run. Used to communicate with the GUI.
      */
-    public void setUpArgs(VisualThread visualThread, int numProcessors, String fileName, int numTasks, int numThreads) {
-        controller.setUpArgs(visualThread, numProcessors, fileName, numTasks, numThreads);
+    public void setUpArgs(SolutionThread solutionThread, int numProcessors, String fileName, int numTasks, int numThreads) {
+        controller.setUpArgs(solutionThread, numProcessors, fileName, numTasks, numThreads);
     }
 }

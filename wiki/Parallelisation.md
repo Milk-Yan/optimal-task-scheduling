@@ -1,8 +1,8 @@
 # Parallelization
 Each thread will work on exploring different states, so we need to give then their own independent copies of the state. To do this, we created a 
-`SolutionState` class which contains fields that keep track of the free tasks in the state, in degree of tasks, task start times, processors that the tasks are 
+`SearchState` class which contains fields that keep track of the free tasks in the state, in degree of tasks, task start times, processors that the tasks are 
 scheduled on, processor finish times, and the sum of all the durations of tasks yet to be scheduled. To cater to the independent copy needs of each thread
-the `SolutionState` class has a method which returns a deep copy of itself. 
+the `SearchState` class has a method which returns a deep copy of itself. 
 
 ## ForkJoinPool
 To parallelize the algorithm, we used the `ForkJoinPool` and `RecursiveAction` classes. `ForkJoinPool` is a type of ExecutorService for running `ForkJoinTask`s,

@@ -30,15 +30,21 @@ public abstract class Solution {
     protected volatile List<Task>[] bestSchedule; //current best schedule
     protected volatile boolean bestChanged = false;
 
-
     /**
      * @param taskGraph a data structure containing vital information about the DAG.
      * @param numProcessors number of processors we have to schedule the tasks on.
-     * @param upperBoundTime The current best finishing time gotten from the greedy implementation.
      * @return Schedule. Schedule encapsulates the an optimal schedule and the information needed when writing to the dot
      * file.
      */
-    public abstract Schedule run(TaskGraph taskGraph, int numProcessors, int upperBoundTime);
+    public Solution(TaskGraph taskGraph, int numProcessors) {
+        this.taskGraph = taskGraph;
+        this.numProcessors = numProcessors;
+    }
+
+    /**
+     * Main method which runs the algorithm and returns a scheduling of tasks.
+     */
+    public abstract Schedule run();
 
     public void setVisual() {
         this.isVisual = true;
@@ -67,6 +73,28 @@ public abstract class Solution {
                 Task task = new Task(bestStartTime[i], taskGraph.getDuration(i), false);
                 bestSchedule[bestScheduledOn[i]].add(task);
             }
+        }
+        bestChanged = true;
+    }
+
+    /**
+     * Set initial schedule of the solution so that it can be accessed by a poller, if it is being visualised.
+     * @param schedule the initial schedule
+     */
+    public synchronized void setInitialSchedule(Schedule schedule) {
+        this.bestFinishTime = schedule.getFinishTime();
+        if (!isVisual) return;  //If the visual is not enabled, we dont do the following computation
+
+        bestSchedule = new List[numProcessors];
+        for (int i = 0; i < numProcessors; i++) {
+            bestSchedule[i] = new ArrayList<>();
+        }
+
+        Task[] tasks = schedule.getTasks();
+        for (Task task : tasks) {
+            Task transformedTask = new Task(task.getStartTime(),
+                    task.getFinishTime() - task.getStartTime(), false);
+            bestSchedule[task.getProcessor()].add(transformedTask);
         }
         bestChanged = true;
     }

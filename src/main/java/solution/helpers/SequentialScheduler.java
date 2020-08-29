@@ -47,7 +47,7 @@ public class SequentialScheduler {
             int startTime = finishTime;
             // update the finish time to include the scheduled task.
             finishTime += taskGraph.getDuration(task);
-            tasks[task] = new Task(task, startTime, finishTime, 0);
+            tasks[task] = new Task(startTime, finishTime, 0);
 
             // since this task is done, its children would
             // no longer have this dependency
