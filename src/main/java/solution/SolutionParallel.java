@@ -10,7 +10,11 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class SolutionParallel extends Solution {
-    private final ForkJoinPool forkJoinPool = new ForkJoinPool(3);
+    private ForkJoinPool forkJoinPool;
+
+    public void setNumCores(int numCores) {
+        this.forkJoinPool = new ForkJoinPool(numCores);
+    }
 
     /**
      * Creates an optimal scheduling of tasks on specified number of processors.

@@ -52,6 +52,7 @@ public class Driver {
             solution = new SolutionParallel();
             try {
                 numThreads = Integer.parseInt(cmd.getOptionValue('p'));
+                ((SolutionParallel) solution).setNumCores(numThreads);
             } catch(NumberFormatException e) {
                 System.err.println("Error: number of threads invalid");
                 System.exit(1);
