@@ -1,0 +1,27 @@
+digraph "15Nodes10Edges" {
+	0	[Weight=20];
+	1    	[Weight=30];
+    	2    	[Weight=32];
+    	3    	[Weight=46];
+    	4    	[Weight=26];
+    	5    	[Weight=52];
+    	6    	[Weight=15];
+    	7    	[Weight=73];
+    	8    	[Weight=24];
+    	9    	[Weight=36];
+    	10    	[Weight=14];
+    	11    	[Weight=36];
+    	12    	[Weight=86];
+    	13    	[Weight=27];
+    	14    	[Weight=25];
+	0 -> 1	[Weight=32];
+	1 -> 8	[Weight=42];
+	4 -> 5	[Weight=12];
+	4 -> 6	[Weight=14];
+	5 -> 7	[Weight=12];
+	11 -> 12 	[Weight=64];
+	12 -> 1	[Weight=24];
+	13 -> 2	[Weight=56];
+	2 -> 9 	[Weight=24];
+	3 -> 4	[Weight=15];
+}
