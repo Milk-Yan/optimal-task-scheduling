@@ -107,4 +107,6 @@ public class TaskGraph {
     public int getCommCost(int parent, int child) {
         return commCosts[parent][child];
     }
+
+    public int[] getDurations() { return durations; }
 }
