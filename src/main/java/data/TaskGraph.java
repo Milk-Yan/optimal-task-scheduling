@@ -108,5 +108,8 @@ public class TaskGraph {
         return commCosts[parent][child];
     }
 
+     /**
+     * @return The duration of all input tasks.
+     */
     public int[] getDurations() { return durations; }
 }
