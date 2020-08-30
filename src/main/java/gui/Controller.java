@@ -2,7 +2,6 @@ package gui;
 
 import data.Task;
 import javafx.animation.AnimationTimer;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.chart.CategoryAxis;
@@ -10,9 +9,11 @@ import javafx.scene.chart.StackedBarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-
 import solution.SolutionThread;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Controller class for the visualisation (GUI). It connects to the fxml file.
@@ -49,8 +50,6 @@ public class Controller {
     private int numProcessors;
 
     private SolutionThread solutionThread; // thread on which the algorithm runs
-    private Timer poller; // timer which polls the algorithm
-    private Timer timer; // timer for displaying the run time
 
     /**
      * This method sets up initial values for labels in the GUI, along with any other information it needs.
