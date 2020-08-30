@@ -126,7 +126,7 @@ public class Driver {
      */
     private static String getOutputFilePath(CommandLine cmd) {
         String outputFilePath = cmd.getOptionValue('o',
-                fileName.split("\\.")[0] + "-output.dot");
+                fileName.substring(0,fileName.length()-4) + "-output.dot");
         if (!outputFilePath.endsWith(".dot")) {
             outputFilePath += ".dot";
         }
