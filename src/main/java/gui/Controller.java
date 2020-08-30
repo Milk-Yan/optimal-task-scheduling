@@ -1,6 +1,7 @@
 package gui;
 
 import data.Task;
+import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -61,6 +62,7 @@ public class Controller {
      */
     public void setUpArgs(SolutionThread solutionThread, int numProcessors, String inputGraphName, int numTasks, int numThreads) {
         this.solutionThread = solutionThread;
+        Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
         inputGraphLabel.setText(inputGraphName);
         totalTasksLabel.setText(numTasks + "");
         threadCountLabel.setText(numThreads + "");
@@ -82,63 +84,48 @@ public class Controller {
      */
     @FXML
     private void start() {
-        final long startTime = System.currentTimeMillis();
 
         startButton.setDisable(true);
         setStatusRunning();
 
         // Start the algorithm
         solutionThread.start();
-        poller = new Timer();
-        poller.scheduleAtFixedRate(new TimerTask() {
+
+        // timer for polling and updating elapsed time
+        new AnimationTimer() {
+            final long startTime = System.currentTimeMillis();
+            private long lastUpdate = 0;
+
             @Override
-            public void run() {
-                // Get information from GUI thread via polling
+            public void handle(long now) {
+                if (now - lastUpdate < 50_000_000) {
+                    return;
+                } else {
+                    lastUpdate = now;
+                }
                 long stateCount = solutionThread.getStateCount();
-                boolean isDone = solutionThread.isDone();
-
-                // Run GUI changes in application thread
-                Platform.runLater(() -> {
-                    updateStateCountLabel(stateCount);
-                    // Only update if change is detected
-                    if (solutionThread.getBestChanged()) {
-                        currentBestLabel.setText(solutionThread.getCurrentBest() + "");
-                        updateStackedBarChart(solutionThread.getBestSchedule());
-                    }
-                    if (isDone) {
-                        stop();
-                    }
-                });
-            }
-        }, 0, 100);
-
-        // Timer for displaying the elapsed item.
-        timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
+                updateStateCountLabel(stateCount);
+                // Only update if change is detected
+                if (solutionThread.getBestChanged()) {
+                    currentBestLabel.setText(solutionThread.getCurrentBest() + "");
+                    updateStackedBarChart(solutionThread.getBestSchedule());
+                }
+                if (solutionThread.isDone()) {
+                    this.stop();
+                    setStatusFinished();
+                }
                 long elapsedMillis = System.currentTimeMillis() - startTime;
                 // Calculate the milliseconds, seconds, and minutes passed since the start of the program.
                 int milliseconds = (int) ( elapsedMillis % 1000);
                 int seconds = (int) ((elapsedMillis / 1000) % 60);
                 int minutes = (int) ((elapsedMillis / (1000 * 60)) % 60);
                 int hours = (int) (elapsedMillis / (1000 * 60 * 60));
-                Platform.runLater(() -> {
-                    timerLabel.setText(String.format("%02d:%02d:%02d.%02d", hours, minutes, seconds, milliseconds / 10));
-                });
+                timerLabel.setText(String.format("%02d:%02d:%02d.%02d", hours, minutes, seconds, milliseconds / 10));
+
+
             }
-        }, 0, 10);
+        }.start();
 
-    }
-
-    /**
-     * Method called when the algorithm has stopped running.
-     * Stops the poller and timer, and updates the status label.
-     */
-    private void stop() {
-        poller.cancel();
-        timer.cancel();
-        setStatusFinished();
     }
 
     /**
