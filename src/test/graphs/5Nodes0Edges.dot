@@ -1,0 +1,7 @@
+digraph "5Nodes0Edges" {
+    0    [Weight=20];
+    1    [Weight=30];
+    2    [Weight=32];
+    3    [Weight=46];
+    4    [Weight=26];
+}

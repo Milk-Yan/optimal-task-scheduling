@@ -9,6 +9,8 @@
 *.iml
 .idea
 *.dot
+# include test-specific graphs
+!src/test/graphs/*.dot
 
 # Generated files
 .idea/**/contentModel.xml

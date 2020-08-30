@@ -8,6 +8,7 @@ import org.graphstream.graph.Node;
  */
 public class SolutionValidater {
 
+    private int bestTime;
 
     /**
      * Finds if the input data.Task graph is a valid set of solutions.
@@ -77,6 +78,7 @@ public class SolutionValidater {
                 System.out.println("Parents are not complete before task.");
                 return false;
             }
+            bestTime = Math.max(bestTime, startTimes[i] + outputDurations[i]);
         }
 
         return true;
@@ -107,5 +109,9 @@ public class SolutionValidater {
         }
 
         return true;
+    }
+
+    public int getBestTime() {
+        return bestTime;
     }
 }

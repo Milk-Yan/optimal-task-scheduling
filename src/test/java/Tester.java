@@ -1,52 +1,53 @@
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+/**
+ * JUnit tests for the optimality of the solution of the task scheduling problem.
+ */
 public class Tester {
+    private final String graphDir = System.getProperty("user.dir") + System.getProperty("file.separator") + "src" +
+            System.getProperty("file.separator") + "test" + System.getProperty("file.separator") + "graphs" +
+            System.getProperty("file.separator");
 
-    private final static int NUM_TESTS = 10;
+    // --------------------------------------BLACK BOX---------------------------------------------
 
-    public static void main(String[] args) throws IOException {
-        SolutionValidater validater = new SolutionValidater();
-        Random randomGenerator = new Random();
-        int validCount = 0;
-        int totalCount = 0;
+    // Tests on ONE processor
 
-        File currentDir = new File(System.getProperty("user.dir"));
-        for (File file: currentDir.listFiles()) {
-            if (file.getName().matches("RandomGraph.*\\.dot")) {
-                // only process dot files created from our generator
-                int numProcessors = 1 + randomGenerator.nextInt(4);
-                System.out.println("Testing " + file.getName() + " on " + numProcessors + " processors.");
-                String outputFileName = file.getName().replace(".dot", "-output.dot");
-                totalCount++;
+    /**
+     * Test a simple graph without edges on one processor
+     */
+    @Test
+    public void testOneProcessorNoEdges() {
+        SolutionValidater validator = new SolutionValidater();
+        String inputFileName = graphDir + "5Nodes0Edges.dot";
+        String outputFileName = inputFileName.replace(".dot", "-output.dot");
+        assertTrue(testValidity(validator, inputFileName, 1, outputFileName));
+        assertEquals(154, validator.getBestTime());
+        cleanUp(outputFileName);
+    }
 
-                Process process = Runtime.getRuntime().exec("java -jar scheduler.jar " + file.getName() + " " +
-                        numProcessors + " -o " + outputFileName);
+    // --------------------------------------WHITE BOX----------------------------------------------
 
-                try {
-                    process.waitFor();
-                } catch (Exception e) {
-                    System.err.println("Error waiting for scheduler to run programs");
-                }
 
-                if (validater.validate(file.getName(), outputFileName, numProcessors)) {
-                    System.out.println("Validated.");
-                    validCount++;
-                } else {
-                    System.out.println("The output is not valid!!");
-                }
-                file.delete();
-                new File(outputFileName).delete();
-            }
+    // ----------------------------------------UTILITY-----------------------------------------------
+    private boolean testValidity(SolutionValidater validator, String inputFileName, int numProcessors, String outputFileName) {
+        try {
+            Process process = Runtime.getRuntime().exec("java -jar scheduler.jar " +
+                    inputFileName + " " + numProcessors + " -o " + outputFileName);
+            process.waitFor();
+        } catch (Exception e) {
+            System.err.println("Error waiting for scheduler to run programs");
+            e.printStackTrace();
         }
 
-        System.out.println(validCount + "/" + totalCount + " tests were valid.");
+        return validator.validate(inputFileName, outputFileName, numProcessors);
+    }
+
+    private void cleanUp(String outputFileName) {
+        new File(outputFileName).delete();
     }
 }
