@@ -33,10 +33,11 @@
 }
 
 .button:hover{
-    -fx-text-fill: white;
-    -fx-border-color: #e7a499;
-    -fx-background-color: #e7a499;
-    -fx-effect: dropshadow(two-pass-box, rgba(0,0,0,0.8), 10, 0.2, 0, 0);
+    -fx-effect: dropshadow(two-pass-box, rgba(0,0,0,0.8), 20, 0, 0, 0);
+}
+.button:pressed {
+    -fx-background-color: #e9c4bc;
+    -fx-border-color: #e9c4bc;
 }
 
 .button:disabled{
