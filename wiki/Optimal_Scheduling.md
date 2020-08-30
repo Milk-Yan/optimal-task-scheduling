@@ -92,7 +92,7 @@ space such that it becomes manageable for us to search and find the optimal sche
    tasks in non-increasing out-edge costs ensure that the start time of any tasks 
    that depend on our set of candidateTasks (which should be all tasks that are not 
    currently scheduled and not in candidateTasks by definition) can be minimalised. 
-   [More details here.](http://www.sciencedirect.com/science/article/pii/S0305054813002542)
+   More information about this can be found [here.](http://www.sciencedirect.com/science/article/pii/S0305054813002542)
    
    Once we get an FTO, we know that we can schedule the first task in our FTO safely. 
    However, once the first task is scheduled, this may make changes to our list of 
@@ -151,6 +151,10 @@ space such that it becomes manageable for us to search and find the optimal sche
     
     In our algorithm, we keep the hash codes of different states and check whether the 
     current state is a duplicate of one we have searched before.
+    
+    Using hashcode to detect duplication introduces the possibility of hash collisions in
+    the solution. Please see [Hash Collisions](./Hash_Collisions.md) for more information
+    on this issue.
 
 * #### Processor Normalization
     Two processors are isomorphic if they do not have any tasks scheduled on them. 
