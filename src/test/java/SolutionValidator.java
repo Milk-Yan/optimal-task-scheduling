@@ -6,12 +6,12 @@ import org.graphstream.graph.Node;
  * Utility class to check if a solution is valid given the constraints
  * of preferences.
  */
-public class SolutionValidater {
+public class SolutionValidator {
 
     private int bestTime;
 
     /**
-     * Finds if the input data.Task graph is a valid set of solutions.
+     * Finds if the input Task graph is a valid set of solutions.
     */
     public boolean validate(String inputFileName, String outputFileName, int numProcessors) {
         Graph inputGraph = IOParser.read(inputFileName);
@@ -39,6 +39,7 @@ public class SolutionValidater {
             processors[i] = new Processor();
         }
 
+        // get the input and output information
         for (int i = 0; i < numTasks; i++) {
             Node inputTask = inputGraph.getNode(i);
             Node outputTask = outputGraph.getNode(i);
@@ -50,7 +51,6 @@ public class SolutionValidater {
                 System.out.println("The input and output graphs have different durations.");
                 return false;
             }
-
 
             startTimes[i] = ((Double)outputTask.getAttribute("Start")).intValue();
             scheduledOn[i] = ((Double)outputTask.getAttribute("Processor")).intValue();
@@ -73,6 +73,7 @@ public class SolutionValidater {
             }
         }
 
+        // check if dependencies are respected in the output graph.
         for (int i = 0; i < numTasks; i++) {
             if (!parentsCompleteBeforeTask(startTimes, inputDurations, commCosts, numTasks, scheduledOn)) {
                 System.out.println("Parents are not complete before task.");
@@ -111,6 +112,9 @@ public class SolutionValidater {
         return true;
     }
 
+    /**
+     * @return The best finish time of the validated solution.
+     */
     public int getBestTime() {
         return bestTime;
     }

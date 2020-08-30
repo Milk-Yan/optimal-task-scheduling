@@ -15,14 +15,16 @@ public class Tester {
 
     // --------------------------------------BLACK BOX---------------------------------------------
 
-    // Tests on ONE processor
+
+    // ================================Tests on ONE processor======================================
 
     /**
      * Test a simple graph without edges on one processor
      */
     @Test
     public void testOneProcessorNoEdges() {
-        SolutionValidater validator = new SolutionValidater();
+        SolutionValidator validator = new SolutionValidator();
+
         String inputFileName = graphDir + "5Nodes0Edges.dot";
         String outputFileName = inputFileName.replace(".dot", "-output.dot");
         assertTrue(testValidity(validator, inputFileName, 1, outputFileName));
@@ -34,7 +36,8 @@ public class Tester {
 
 
     // ----------------------------------------UTILITY-----------------------------------------------
-    private boolean testValidity(SolutionValidater validator, String inputFileName, int numProcessors, String outputFileName) {
+
+    private boolean testValidity(SolutionValidator validator, String inputFileName, int numProcessors, String outputFileName) {
         try {
             Process process = Runtime.getRuntime().exec("java -jar scheduler.jar " +
                     inputFileName + " " + numProcessors + " -o " + outputFileName);

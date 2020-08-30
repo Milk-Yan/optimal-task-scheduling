@@ -20,6 +20,10 @@ public class RandomDotGraphGenerator {
     private static int MAX_TASK_WEIGHT = 100;
     private static int MAX_EDGE_WEIGHT = 100;
 
+    /**
+     * Main method. Creates x random graphs.
+     * @param args Command line arguments.
+     */
     public static void main(String[] args) {
         try {
             int numGraphs = Integer.parseInt(args[0]);
@@ -95,6 +99,11 @@ public class RandomDotGraphGenerator {
         }
     }
 
+    /**
+     * Utility function to get command line options.
+     * @param args Command line arguments.
+     * @return information about user input.
+     */
     private static CommandLine getCommandLineOptions(String[] args){
         Options options = new Options();
         Option maxSize = new Option("maxSize", true, "maximum number of tasks");
@@ -125,6 +134,10 @@ public class RandomDotGraphGenerator {
         return cmd;
     }
 
+    /**
+     * Set our fields according to the user input.
+     * @param cmd Command line arguments.
+     */
     private static void initializeFieldsAccordingToCmd(CommandLine cmd) {
         try {
             if (cmd.hasOption("maxSize")) {
