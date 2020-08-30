@@ -13,15 +13,19 @@ public class SearchState {
     protected int[] scheduledOn;  // scheduledOn[i] => the processor task i is scheduled on
     protected int[] processorFinishTimes; // processorFinishTimes[i] => finishing time of the last task scheduled on processor i
     protected int remainingDuration = 0; // Sum of weights of unscheduled tasks
+    protected int previousProcessor;
+    protected boolean childAddedLastRound;
 
     public SearchState(LinkedList<Integer> candidateTasks, int[] inDegrees, int[] taskStartTimes,
-                       int[] scheduledOn, int[] processorFinishTimes, int remainingDuration) {
+                       int[] scheduledOn, int[] processorFinishTimes, int remainingDuration, int previousProcessor, boolean childAddedLastRound) {
         this.candidateTasks = candidateTasks;
         this.inDegrees = inDegrees;
         this.taskStartTimes = taskStartTimes;
         this.scheduledOn = scheduledOn;
         this.processorFinishTimes = processorFinishTimes;
         this.remainingDuration = remainingDuration;
+        this.previousProcessor = previousProcessor;
+        this.childAddedLastRound = childAddedLastRound;
     }
 
      /**
@@ -35,6 +39,9 @@ public class SearchState {
         int[] scheduledOnDuplicate = new int[n];
         int[] processorFinishTimesDuplicate = new int[processorFinishTimes.length];
         int remainingDurationDuplicate = remainingDuration;
+        int duplicatePreviousProcessor = previousProcessor;
+        boolean duplicateChildAddedLastRound = childAddedLastRound;
+
 
         for(int i = 0; i < n; i++){
             inDegreeDuplicate[i] = inDegrees[i];
@@ -47,7 +54,7 @@ public class SearchState {
         }
         LinkedList<Integer> candidateTasksDuplicate = new LinkedList<>(candidateTasks);
         SearchState duplicate = new SearchState(candidateTasksDuplicate, inDegreeDuplicate, taskStartTimesDuplicate,
-                scheduledOnDuplicate, processorFinishTimesDuplicate, remainingDurationDuplicate);
+                scheduledOnDuplicate, processorFinishTimesDuplicate, remainingDurationDuplicate, duplicatePreviousProcessor, duplicateChildAddedLastRound);
 
         return duplicate;
     }

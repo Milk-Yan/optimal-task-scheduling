@@ -146,10 +146,12 @@ public class SolutionParallel extends Solution {
                 // Update state (Location 1: Candidate data.Task)
                 searchState.remainingDuration -= taskGraph.getDuration(candidateTask);
                 List<Integer> candidateChildren = taskGraph.getChildrenList(candidateTask);
+                boolean childAddedThisRound = false;
                 for (Integer candidateChild : candidateChildren) {
                     searchState.inDegrees[candidateChild]--;
                     if (searchState.inDegrees[candidateChild] == 0) {
                         searchState.candidateTasks.add(candidateChild);
+                        childAddedThisRound = true;
                     }
                 }
 
@@ -186,6 +188,11 @@ public class SolutionParallel extends Solution {
                         }
                     }
 
+                    // Partial duplicate avoidance
+                    if(!searchState.childAddedLastRound && candidateProcessor < searchState.previousProcessor){
+                        continue;
+                    }
+
                     // Find earliest time to schedule candidate task on candidate processor
                     int earliestStartTimeOnCurrentProcessor = searchState.processorFinishTimes[candidateProcessor];
                     if (processorCausingMaxDataArrival != candidateProcessor) {
@@ -204,6 +211,10 @@ public class SolutionParallel extends Solution {
 
                     // Update state (Location 2: Processors)
                     int prevFinishTime = searchState.processorFinishTimes[candidateProcessor];
+                    int oldPreviousProcessor = searchState.previousProcessor;
+                    boolean oldChildAddedLastRound = searchState.childAddedLastRound;
+                    searchState.previousProcessor = candidateProcessor;
+                    searchState.childAddedLastRound = childAddedThisRound;
                     searchState.processorFinishTimes[candidateProcessor] = earliestStartTimeOnCurrentProcessor + taskGraph.getDuration(candidateTask);
                     searchState.scheduledOn[candidateTask] = candidateProcessor;
                     searchState.taskStartTimes[candidateTask] = earliestStartTimeOnCurrentProcessor;
@@ -214,6 +225,9 @@ public class SolutionParallel extends Solution {
 
                     // Backtrack state (Location 2: Processors)
                     searchState.processorFinishTimes[candidateProcessor] = prevFinishTime;
+                    searchState.previousProcessor = oldPreviousProcessor;
+                    searchState.childAddedLastRound = oldChildAddedLastRound;
+
                 }
 
                 // Backtrack state (Location 1: Candidate data.Task)
@@ -295,6 +309,6 @@ public class SolutionParallel extends Solution {
             }
         }
         return new SearchState(candidateTasks, inDegrees, taskStartTimes,
-                scheduledOn, processorFinishTimes, remainingDuration);
+                scheduledOn, processorFinishTimes, remainingDuration, -1, false);
     }
 }
