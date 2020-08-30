@@ -53,11 +53,11 @@ space such that it becomes manageable for us to search and find the optimal sche
     The same order of tasks on processes may reoccur from the exploration of different 
     states.
     
-    Given a set of free tasks `{a, b, c}`, suppose that we want to schedule task `a` on 
-    the processor at index `i`. If `a` has no children, then scheduling `b` on any 
+    Given a set of free tasks `{a, b, c}`, suppose that we have already scheduled task `a` on 
+    the processors up to index `i`. If `a` has no children, then scheduling `b` on any 
     processor less than `i` in the next recursive call will result in the algorithm 
-    exploring the same partial state twice. The reason for this is that node `b` will 
-    eventually get to be scheduled on processors indexed less than `i`-1 in the initial 
+    exploring the same partial state again. The reason for this is that node `b` will 
+    eventually get to be scheduled on processors indexed less than `i-1` in the initial 
     state and when it goes through recursion, `a` will get to be scheduled on processors
     greater than the one `b` is on. 
     
