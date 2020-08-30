@@ -14,6 +14,8 @@ public class SolutionSequential extends Solution {
     private int[] scheduledOn;  // scheduledOn[i] => the processor task i is scheduled on
     private int[] processorFinishTimes; // processorFinishTimes[i] => finishing time of the last task scheduled on processor i
     private int remainingDuration = 0; // total duration of remaining tasks to be scheduled (used for pruning)
+    private int previousProcessor = -1;
+    private boolean childAddedLastRound = false;
 
     /**
      * @param taskGraph      Graph containing tasks as nodes and their dependencies as edges.
@@ -101,11 +103,13 @@ public class SolutionSequential extends Solution {
 
             // Update state (Location 1: Candidate data.Task)
             remainingDuration -= taskGraph.getDuration(candidateTask);
+            boolean childAddedThisRound = false;
             List<Integer> candidateChildren = taskGraph.getChildrenList(candidateTask);
             for (Integer candidateChild : candidateChildren) {
                 inDegrees[candidateChild]--;
                 if (inDegrees[candidateChild] == 0) {
                     candidateTasks.add(candidateChild);
+                    childAddedThisRound = true;
                 }
             }
 
@@ -145,6 +149,11 @@ public class SolutionSequential extends Solution {
                     }
                 }
 
+                // Partial duplicate avoidance
+                if(!childAddedLastRound && candidateProcessor < previousProcessor){
+                    continue;
+                }
+
                 // Find earliest time to schedule candidate task on candidate processor
                 int earliestStartTimeOnCurrentProcessor = processorFinishTimes[candidateProcessor];
                 if (processorCausingMaxDataArrival != candidateProcessor) {
@@ -160,6 +169,11 @@ public class SolutionSequential extends Solution {
 
                 // Update state (Location 2: Processors)
                 int prevFinishTime = processorFinishTimes[candidateProcessor];
+                int oldPreviousProcessor = previousProcessor;
+                boolean oldChildAddedLastRound = childAddedLastRound;
+                previousProcessor = candidateProcessor;
+                childAddedLastRound = childAddedThisRound;
+
                 processorFinishTimes[candidateProcessor] = earliestStartTimeOnCurrentProcessor + taskGraph.getDuration(candidateTask);
                 scheduledOn[candidateTask] = candidateProcessor;
                 taskStartTimes[candidateTask] = earliestStartTimeOnCurrentProcessor;
@@ -168,9 +182,11 @@ public class SolutionSequential extends Solution {
 
                 // Backtrack state (Location 2: Processors)
                 processorFinishTimes[candidateProcessor] = prevFinishTime;
+                previousProcessor = oldPreviousProcessor;
+                childAddedLastRound = oldChildAddedLastRound;
             }
 
-            // Backtrack state (Location 1: Candidate data.Task)
+            // Backtrack state (Location 1: Candidate Task)
             for (Integer candidateChild : candidateChildren) {
                 // revert changes made to children
                 inDegrees[candidateChild]++;
@@ -448,6 +464,11 @@ public class SolutionSequential extends Solution {
 
             // Update the state: Location 2
             int prevFinishTime = processorFinishTimes[candidateProcessor];
+            int oldPreviousProcessor = previousProcessor;
+            boolean oldChildAddedLastRound = childAddedLastRound;
+            previousProcessor = candidateProcessor;
+            childAddedLastRound = taskChildAdded;
+
             processorFinishTimes[candidateProcessor] = earliestStartTimeOnCurrentProcessor + taskGraph.getDuration(firstTask);
             scheduledOn[firstTask] = candidateProcessor;
             taskStartTimes[firstTask] = earliestStartTimeOnCurrentProcessor;
@@ -461,6 +482,8 @@ public class SolutionSequential extends Solution {
 
             // Backtrack: Location 2
             processorFinishTimes[candidateProcessor] = prevFinishTime;
+            previousProcessor = oldPreviousProcessor;
+            childAddedLastRound = oldChildAddedLastRound;
         }
         // Backtrack: Location 1
         if(!taskGraph.getChildrenList(firstTask).isEmpty()) {
