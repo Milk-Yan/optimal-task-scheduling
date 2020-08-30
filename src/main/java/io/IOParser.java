@@ -33,8 +33,9 @@ public class IOParser {
         try {
             fileSource.addSink(graph);
             fileSource.readAll(inputFileName);
-        } catch (IOException e) {
-            System.out.println("Error reading file: Please specify the path to a dot file");
+        } catch (Exception e) {
+            System.err.println("Error reading file.");
+            System.exit(1);
         } finally {
           fileSource.removeSink(graph);
         }
