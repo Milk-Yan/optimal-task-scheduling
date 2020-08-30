@@ -25,7 +25,7 @@ public abstract class Solution {
     protected volatile int bestFinishTime; // earliest finishing time of schedules we have searched
     protected volatile HashSet<Integer> seenSchedules = new HashSet<>();
 
-    protected volatile long stateCount; //amount of states that we have searched
+    protected volatile long stateCount = 0; //amount of states that we have searched
     protected volatile boolean isDone;
     protected volatile List<Task>[] bestSchedule; //current best schedule
     protected volatile boolean bestChanged = false;
@@ -84,6 +84,8 @@ public abstract class Solution {
     public void setInitialSchedule(Schedule schedule) {
         this.bestFinishTime = schedule.getFinishTime();
         if (!isVisual) return;  //If the visual is not enabled, we dont do the following computation
+
+        this.stateCount = 5 * taskGraph.getNumberOfTasks();
 
         bestSchedule = new List[numProcessors];
         for (int i = 0; i < numProcessors; i++) {
