@@ -132,7 +132,6 @@ public class RandomDotGraphGenerator {
             }
 
             if (cmd.hasOption("minSize")) {
-                System.out.println(cmd.getOptionValue("minSize"));
                 MIN_SIZE = Integer.parseInt(cmd.getOptionValue("minSize"));
             }
 

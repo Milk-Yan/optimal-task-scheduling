@@ -55,3 +55,6 @@ chmod 777 scheduler.jar
 * [GraphStream](http://graphstream-project.org/)
 * [Commons CLI](https://commons.apache.org/proper/commons-cli/)
 * [JUnit 4](https://junit.org/junit4/)
+* [JitPack](https://jitpack.io/)
+* [Reducing the solution space of optimal task scheduling](http://www.sciencedirect.com/science/article/pii/S0305054813002542)
+* [Optimal Task Scheduling on Parallel Systems](https://researchspace.auckland.ac.nz/handle/2292/27803)

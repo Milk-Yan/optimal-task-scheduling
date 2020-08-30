@@ -15,6 +15,8 @@ public class Tester {
     public static void main(String[] args) throws IOException {
         SolutionValidater validater = new SolutionValidater();
         Random randomGenerator = new Random();
+        int validCount = 0;
+        int totalCount = 0;
 
         File currentDir = new File(System.getProperty("user.dir"));
         for (File file: currentDir.listFiles()) {
@@ -23,6 +25,7 @@ public class Tester {
                 int numProcessors = 1 + randomGenerator.nextInt(4);
                 System.out.println("Testing " + file.getName() + " on " + numProcessors + " processors.");
                 String outputFileName = file.getName().replace(".dot", "-output.dot");
+                totalCount++;
 
                 Process process = Runtime.getRuntime().exec("java -jar scheduler.jar " + file.getName() + " " +
                         numProcessors + " -o " + outputFileName);
@@ -35,6 +38,7 @@ public class Tester {
 
                 if (validater.validate(file.getName(), outputFileName, numProcessors)) {
                     System.out.println("Validated.");
+                    validCount++;
                 } else {
                     System.out.println("The output is not valid!!");
                 }
@@ -42,5 +46,7 @@ public class Tester {
                 new File(outputFileName).delete();
             }
         }
+
+        System.out.println(validCount + "/" + totalCount + " tests were valid.");
     }
 }

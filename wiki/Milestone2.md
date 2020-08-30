@@ -6,7 +6,7 @@ The algorithm was also parallelised to run using a specified number of threads.
 
 For more info on each of these aspects, see below:
 - [Optimal Scheduling](./Optimal_Scheduling.md)
-- [Visualisation](./Visualisation.md)
+- [Visualisation](Visualization.md)
 - [Parallelisation](./Parallelisation.md)
 - [Testing](./Testing.md)
 
