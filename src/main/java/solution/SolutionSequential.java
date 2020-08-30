@@ -388,6 +388,7 @@ public class SolutionSequential extends Solution {
         // Base case
         if (ftoSortedList.isEmpty()) {
             updateBestSchedule();
+            return;
         }
 
         // Create a hash code for our partial schedule to check whether we have examined an equivalent schedule before
