@@ -21,7 +21,7 @@ Check that Java 1.8 is installed using the following command:
 ```
 java -version
 ```
-If it is not installed, you can install it on Linux from [here](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html)
+If it is not installed, you can install it on Linux from [here.](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html)
 
 This is a [Maven](https://maven.apache.org/) Project. To check is Maven is installed, please run the following command:
 ```
