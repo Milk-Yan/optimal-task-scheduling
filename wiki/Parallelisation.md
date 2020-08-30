@@ -35,4 +35,4 @@ over to the innerclass.
 
 The fields `bestStartTime`, `bestScheduledOn`, `bestFinishTime` and `seenSchedules` are 
 global variables that are used by all threads. Because of this, they are only used 
-within synchronized blocks to prevent concurrent issues. 
+within synchronized blocks to prevent concurrent issues. We use class level locks to ensure all instances of `RecursiveSearch` are synchronized.
