@@ -23,7 +23,7 @@ public abstract class Solution {
     protected volatile int[] bestStartTime; // bestStartTime[i] => start time of task i in best schedule found so far
     protected volatile int[] bestScheduledOn; // bestScheduledOn[i] => processor that task i is scheduled on, in best schedule
     protected volatile int bestFinishTime; // earliest finishing time of schedules we have searched
-    protected volatile HashSet<Integer> seenSchedules = new HashSet<>();
+    protected volatile HashSet<HashSet<Integer>> seenSchedules = new HashSet<>();
 
     protected volatile long stateCount = 0; //amount of states that we have searched
     protected volatile boolean isDone;

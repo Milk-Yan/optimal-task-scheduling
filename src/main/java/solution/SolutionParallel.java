@@ -86,12 +86,12 @@ public class SolutionParallel extends Solution {
 
             // Create a hash code for our partial schedule to check whether we have examined an equivalent schedule before
             // If we have seen an equivalent schedule we do not need to proceed
-            int hashCode = PartialScheduleHashGenerator.generateHashCode(searchState.taskStartTimes, searchState.scheduledOn, numProcessors);
+            HashSet<Integer> hashCodes = PartialScheduleHashGenerator.generateHashCode(searchState.taskStartTimes, searchState.scheduledOn, numProcessors);
             synchronized (RecursiveSearch.class) {
-                if (seenSchedules.contains(hashCode)) {
+                if (seenSchedules.contains(hashCodes)) {
                     return;
                 } else {
-                    seenSchedules.add(hashCode);
+                    seenSchedules.add(hashCodes);
                 }
             }
 

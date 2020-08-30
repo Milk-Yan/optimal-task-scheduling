@@ -23,9 +23,9 @@ public class PartialScheduleHashGenerator {
      * @param numProcessors number of processors
      * @return hashcode representing partial solution
      */
-    public static int generateHashCode(int[] startTimes, int[] scheduledOn, int numProcessors) {
+    public static HashSet<Integer> generateHashCode(int[] startTimes, int[] scheduledOn, int numProcessors) {
         //Each stack represents a processor
-        Set<Stack<Integer>> schedule = new HashSet<>();
+        HashSet<Integer> schedule = new HashSet<>();
         Stack<Integer>[] stacks = new Stack[numProcessors];
 
         for (int i = 0; i < stacks.length; i++) {
@@ -42,9 +42,9 @@ public class PartialScheduleHashGenerator {
 
         // Add the stacks to a set.
         for(Stack<Integer> stack : stacks) {
-            schedule.add(stack);
+            schedule.add(stack.hashCode());
         }
 
-        return schedule.hashCode();
+        return schedule;
     }
 }

@@ -194,6 +194,123 @@ public class Tester {
         cleanUp(outputFileName);
     }
 
+    // ===============================Tests provided by client==================================
+
+    /**
+     * These tests cases were provided by the client.
+     */
+
+    @Test
+    public void testProvidedSeven2() {
+        SolutionValidator validator = new SolutionValidator();
+
+        String inputFileName = graphDir + "Nodes_7_OutTree.dot";
+        String outputFileName = inputFileName.replace(".dot", "-output.dot");
+        assertTrue(testValidity(validator, inputFileName, 2, outputFileName));
+        assertEquals(28, validator.getBestTime());
+        cleanUp(outputFileName);
+    }
+
+    @Test
+    public void testProvidedSeven4() {
+        SolutionValidator validator = new SolutionValidator();
+
+        String inputFileName = graphDir + "Nodes_7_OutTree.dot";
+        String outputFileName = inputFileName.replace(".dot", "-output.dot");
+        assertTrue(testValidity(validator, inputFileName, 4, outputFileName));
+        assertEquals(22, validator.getBestTime());
+        cleanUp(outputFileName);
+    }
+
+    @Test
+    public void testProvidedEight2() {
+        SolutionValidator validator = new SolutionValidator();
+
+        String inputFileName = graphDir + "Nodes_8_Random.dot";
+        String outputFileName = inputFileName.replace(".dot", "-output.dot");
+        assertTrue(testValidity(validator, inputFileName, 2, outputFileName));
+        assertEquals(581, validator.getBestTime());
+        cleanUp(outputFileName);
+    }
+
+    @Test
+    public void testProvidedEight4() {
+        SolutionValidator validator = new SolutionValidator();
+
+        String inputFileName = graphDir + "Nodes_8_Random.dot";
+        String outputFileName = inputFileName.replace(".dot", "-output.dot");
+        assertTrue(testValidity(validator, inputFileName, 4, outputFileName));
+        assertEquals(581, validator.getBestTime());
+        cleanUp(outputFileName);
+    }
+
+    @Test
+    public void testProvidedNine2() {
+        SolutionValidator validator = new SolutionValidator();
+
+        String inputFileName = graphDir + "Nodes_9_SeriesParallel.dot";
+        String outputFileName = inputFileName.replace(".dot", "-output.dot");
+        assertTrue(testValidity(validator, inputFileName, 2, outputFileName));
+        assertEquals(55, validator.getBestTime());
+        cleanUp(outputFileName);
+    }
+
+    @Test
+    public void testProvidedNine4() {
+        SolutionValidator validator = new SolutionValidator();
+
+        String inputFileName = graphDir + "Nodes_9_SeriesParallel.dot";
+        String outputFileName = inputFileName.replace(".dot", "-output.dot");
+        assertTrue(testValidity(validator, inputFileName, 4, outputFileName));
+        assertEquals(55, validator.getBestTime());
+        cleanUp(outputFileName);
+    }
+
+    @Test
+    public void testProvidedTen2() {
+        SolutionValidator validator = new SolutionValidator();
+
+        String inputFileName = graphDir + "Nodes_10_Random.dot";
+        String outputFileName = inputFileName.replace(".dot", "-output.dot");
+        assertTrue(testValidity(validator, inputFileName, 2, outputFileName));
+        assertEquals(50, validator.getBestTime());
+        cleanUp(outputFileName);
+    }
+
+    @Test
+    public void testProvidedTen4() {
+        SolutionValidator validator = new SolutionValidator();
+
+        String inputFileName = graphDir + "Nodes_10_Random.dot";
+        String outputFileName = inputFileName.replace(".dot", "-output.dot");
+        assertTrue(testValidity(validator, inputFileName, 4, outputFileName));
+        assertEquals(50, validator.getBestTime());
+        cleanUp(outputFileName);
+    }
+
+    @Test
+    public void testProvidedEleven2() {
+        SolutionValidator validator = new SolutionValidator();
+
+        String inputFileName = graphDir + "Nodes_11_OutTree.dot";
+        String outputFileName = inputFileName.replace(".dot", "-output.dot");
+        assertTrue(testValidity(validator, inputFileName, 2, outputFileName));
+        assertEquals(350, validator.getBestTime());
+        cleanUp(outputFileName);
+    }
+
+    @Test
+    public void testProvidedEleven4() {
+        SolutionValidator validator = new SolutionValidator();
+
+        String inputFileName = graphDir + "Nodes_11_OutTree.dot";
+        String outputFileName = inputFileName.replace(".dot", "-output.dot");
+        assertTrue(testValidity(validator, inputFileName, 4, outputFileName));
+        assertEquals(227, validator.getBestTime());
+        cleanUp(outputFileName);
+    }
+
+
     // ----------------------------------------UTILITY-----------------------------------------------
 
     private boolean testValidity(SolutionValidator validator, String inputFileName, int numProcessors, String outputFileName) {
