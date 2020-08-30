@@ -13,10 +13,6 @@ large sections of the graph which could contain the optimal solution.
 
 Despite this, we have decided to use hash codes for duplication detection in our solution for the following reasons:
 
-- We increased the hash collision resistance of our hash function by storing more data related to the
-partial schedule being hashed. By storing more data, we reduce the risk
-of generating the same hash code from two partial schedules which are not equal.
-
 - Given the relatively small nodes and processors the solution is expected to be run on, the likelihood
 of a scenario in which _all_ optimal schedules in the graph are incorrectly detected as duplicates
 is minimal.
