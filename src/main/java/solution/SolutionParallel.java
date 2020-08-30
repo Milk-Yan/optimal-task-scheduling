@@ -34,8 +34,8 @@ public class SolutionParallel extends Solution {
      * @return optimal schedule found by the run method.
      */
     public Schedule run() {
-        initializeGlobalVars(taskGraph, numProcessors);
-        SearchState initialSearchState = initializeState(taskGraph, numProcessors);
+        initializeGlobalVars();
+        SearchState initialSearchState = initializeState();
 
         RecursiveSearch recursiveSearch = new RecursiveSearch(initialSearchState);
         forkJoinPool.invoke(recursiveSearch);
@@ -69,7 +69,7 @@ public class SolutionParallel extends Solution {
             if (searchState.candidateTasks.isEmpty()) {
                 int finishTime = findMaxInArray(searchState.processorFinishTimes);
 
-                synchronized (this) {
+                synchronized (RecursiveSearch.class) {
                     //If schedule time is better, update bestFinishTime and best schedule
                     if (finishTime < bestFinishTime) {
                         bestFinishTime = finishTime;
@@ -87,7 +87,7 @@ public class SolutionParallel extends Solution {
             // Create a hash code for our partial schedule to check whether we have examined an equivalent schedule before
             // If we have seen an equivalent schedule we do not need to proceed
             int hashCode = PartialScheduleHashGenerator.generateHashCode(searchState.taskStartTimes, searchState.scheduledOn, numProcessors);
-            synchronized (this) {
+            synchronized (RecursiveSearch.class) {
                 if (seenSchedules.contains(hashCode)) {
                     return;
                 } else {
@@ -133,7 +133,7 @@ public class SolutionParallel extends Solution {
                 boolean loadBalancingConstraint;
                 boolean criticalPathConstraint;
                 boolean latestFinishTimeConstraint;
-                synchronized (this) {
+                synchronized (RecursiveSearch.class) {
                     loadBalancingConstraint = earliestProcessorFinishTime + loadBalancedRemainingTime >= bestFinishTime;
                     criticalPathConstraint = earliestProcessorFinishTime + longestCriticalPath >= bestFinishTime;
                     latestFinishTimeConstraint = latestProcessorFinishTime >= bestFinishTime;
@@ -195,7 +195,7 @@ public class SolutionParallel extends Solution {
                     }
 
                     // Exit conditions 2: tighter constraint now that we have selected the processor
-                    synchronized (this) {
+                    synchronized (RecursiveSearch.class) {
                         criticalPathConstraint = earliestStartTimeOnCurrentProcessor + maxLengthToExitNode[candidateTask] >= bestFinishTime;
                     }
                     if (criticalPathConstraint) {
@@ -266,9 +266,7 @@ public class SolutionParallel extends Solution {
     /**
      * Helper method to initialize variables used by all threads.
      */
-    private void initializeGlobalVars(TaskGraph taskGraph, int numProcessors) {
-        this.taskGraph = taskGraph;
-        this.numProcessors = numProcessors;
+    private void initializeGlobalVars() {
         maxLengthToExitNode = PreProcessor.maxLengthToExitNode(taskGraph);
         nodePriorities = maxLengthToExitNode;
         numTasks = taskGraph.getNumberOfTasks();
@@ -280,7 +278,7 @@ public class SolutionParallel extends Solution {
     /**
      * Helper method to create the initial state on which the algorithm runs.
      */
-    private SearchState initializeState(TaskGraph taskGraph, int numProcessors) {
+    private SearchState initializeState() {
         LinkedList<Integer> candidateTasks = new LinkedList<>();
         int[] inDegrees = new int[numTasks];
         int[] taskStartTimes = new int[numTasks];

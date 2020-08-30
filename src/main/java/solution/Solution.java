@@ -61,7 +61,7 @@ public abstract class Solution {
     /**
      * When we have found a schedule that is better than the current one, then we use this method to update it.
      */
-    protected synchronized void updateBestScheduleOnVisual() {
+    protected void updateBestScheduleOnVisual() {
         if (!isVisual) return;  //If the visual is not enabled, we dont do the following computation
         bestSchedule = new List[numProcessors];
         for (int i = 0; i < numProcessors; i++) {
@@ -81,7 +81,7 @@ public abstract class Solution {
      * Set initial schedule of the solution so that it can be accessed by a poller, if it is being visualised.
      * @param schedule the initial schedule
      */
-    public synchronized void setInitialSchedule(Schedule schedule) {
+    public void setInitialSchedule(Schedule schedule) {
         this.bestFinishTime = schedule.getFinishTime();
         if (!isVisual) return;  //If the visual is not enabled, we dont do the following computation
 
