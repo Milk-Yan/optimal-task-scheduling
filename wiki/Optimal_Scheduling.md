@@ -61,8 +61,6 @@ space such that it becomes manageable for us to search and find the optimal sche
     state and when it goes through recursion, `a` will get to be scheduled on processors
     greater than the one `b` is on. 
     
-    [add diagram here?]
-    
 * #### Fixed Task Order (FTO)
    Suppose we are in the process of scheduling our tasks. Let us call the list of tasks 
    where there are either no dependencies, or their dependencies have been completed, 
