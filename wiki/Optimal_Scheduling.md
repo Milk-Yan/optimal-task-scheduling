@@ -1,7 +1,7 @@
 # Optimal Scheduling
 
 ## Solution
-[Need to talk about BnB, DFS here?]
+The algorithm uses a DFS branch-and-bound approach to exhaustively search all possible solutions. This is done by trying to schedule each task on every processor. However, the number of states searched is reduced significantly using several optimsations, detailed below.
 ## Optimisation
 ### Pre-Processing
 * #### Node Duplication
